@@ -132,28 +132,29 @@
     </div>
 
     <footer>
-        Powered by JavaScript & XLSX | Designed for easier exploration of literary devices in the Bible
+        Powered by JavaScript & Google Sheets API | Designed for easier exploration of literary devices in the Bible
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
     <script>
-        const excelUrl = 'tanakh_verses_hebrew.xlsx';
+        const API_KEY = 'AIzaSyD0YKX5_RSAWa79rj9j2TUcatpMctHMR3U';
+        const SHEET_ID = '1AQigxLa6S8HAoVeUYohh4AjQ_9YU_HgXBjuXZdl6msg';
+        const RANGE = 'tanakh_verses_hebrew!A:F';  // Update with correct sheet name
+
         let versesData = [];
 
-        // Load the Excel file when a book or device is selected
+        // Load the Google Sheets data
         function loadVerses(callback) {
             if (versesData.length === 0) {
-                fetch(excelUrl)
-                    .then(response => response.arrayBuffer())
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+                
+                fetch(url)
+                    .then(response => response.json())
                     .then(data => {
-                        const workbook = XLSX.read(new Uint8Array(data), { type: "array" });
-                        const sheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[sheetName];
-                        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                        versesData = json;
-                        console.log("Excel Data Loaded:", json); // Log the data loaded from Excel
+                        versesData = data.values || [];
+                        console.log("Google Sheets Data Loaded:", versesData); // Log the data loaded from Google Sheets
                         callback();
-                    });
+                    })
+                    .catch(error => console.error('Error loading Google Sheets data:', error));
             } else {
                 callback();
             }
@@ -199,25 +200,25 @@
 
         // Filter by Literary Device
         function filterByDevice(device) {
-    console.log("Filtering by Device:", device); // Log the selected device
+            console.log("Filtering by Device:", device); // Log the selected device
 
-    loadVerses(() => {
-        displayVerses((book, currentDevice) => {
-            // Log each device and the selected filter for debugging
-            console.log(`Current Device: '${currentDevice}', Selected Device: '${device}'`);
-            
-            // Ensure both device and currentDevice are properly trimmed and lowercased
-            const formattedCurrentDevice = currentDevice ? currentDevice.trim().toLowerCase() : '';
-            const formattedSelectedDevice = device ? device.trim().toLowerCase() : '';
+            loadVerses(() => {
+                displayVerses((book, currentDevice) => {
+                    // Log each device and the selected filter for debugging
+                    console.log(`Current Device: '${currentDevice}', Selected Device: '${device}'`);
+                    
+                    // Ensure both device and currentDevice are properly trimmed and lowercased
+                    const formattedCurrentDevice = currentDevice ? currentDevice.trim().toLowerCase() : '';
+                    const formattedSelectedDevice = device ? device.trim().toLowerCase() : '';
 
-            // Log the formatted values to compare
-            console.log(`Formatted Device: '${formattedCurrentDevice}', Selected: '${formattedSelectedDevice}'`);
+                    // Log the formatted values to compare
+                    console.log(`Formatted Device: '${formattedCurrentDevice}', Selected: '${formattedSelectedDevice}'`);
 
-            // Return true if devices match, or if no device is selected (show all)
-            return !formattedSelectedDevice || formattedCurrentDevice === formattedSelectedDevice;
-        });
-    });
-}
+                    // Return true if devices match, or if no device is selected (show all)
+                    return !formattedSelectedDevice || formattedCurrentDevice === formattedSelectedDevice;
+                });
+            });
+        }
 
         // Filter by Book
         function filterByBook(book) {
