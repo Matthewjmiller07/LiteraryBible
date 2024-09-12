@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color-Coded Bible</title>
+    <style>
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .filter-buttons, .book-filter {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-buttons button, .book-filter button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .filter-buttons button:hover, .book-filter button:hover {
+            background-color: #0056b3;
+        }
+
+        .verses {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .verse {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .verse span {
+            display: block;
+            color: #444;
+        }
+
+        .highlight {
+            color: red;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Color-Coded Bible</h1>
+
+    <!-- Book filter buttons -->
+    <div class="book-filter">
+        <button onclick="filterByBook('Genesis')">Genesis</button>
+        <button onclick="filterByBook('Exodus')">Exodus</button>
+        <button onclick="filterByBook('Leviticus')">Leviticus</button>
+        <button onclick="filterByBook('Numbers')">Numbers</button>
+        <button onclick="filterByBook('Deuteronomy')">Deuteronomy</button>
+        <!-- Prophets -->
+        <button onclick="filterByBook('Joshua')">Joshua</button>
+        <button onclick="filterByBook('Judges')">Judges</button>
+        <button onclick="filterByBook('I Samuel')">I Samuel</button>
+        <button onclick="filterByBook('II Samuel')">II Samuel</button>
+        <button onclick="filterByBook('I Kings')">I Kings</button>
+        <button onclick="filterByBook('II Kings')">II Kings</button>
+        <button onclick="filterByBook('Isaiah')">Isaiah</button>
+        <button onclick="filterByBook('Jeremiah')">Jeremiah</button>
+        <button onclick="filterByBook('Ezekiel')">Ezekiel</button>
+        <button onclick="filterByBook('Hosea')">Hosea</button>
+        <button onclick="filterByBook('Joel')">Joel</button>
+        <button onclick="filterByBook('Amos')">Amos</button>
+        <button onclick="filterByBook('Obadiah')">Obadiah</button>
+        <button onclick="filterByBook('Jonah')">Jonah</button>
+        <button onclick="filterByBook('Micah')">Micah</button>
+        <button onclick="filterByBook('Nahum')">Nahum</button>
+        <button onclick="filterByBook('Habakkuk')">Habakkuk</button>
+        <button onclick="filterByBook('Zephaniah')">Zephaniah</button>
+        <button onclick="filterByBook('Haggai')">Haggai</button>
+        <button onclick="filterByBook('Zechariah')">Zechariah</button>
+        <button onclick="filterByBook('Malachi')">Malachi</button>
+        <!-- Writings -->
+        <button onclick="filterByBook('Psalms')">Psalms</button>
+        <button onclick="filterByBook('Proverbs')">Proverbs</button>
+        <button onclick="filterByBook('Job')">Job</button>
+        <button onclick="filterByBook('Song of Songs')">Song of Songs</button>
+        <button onclick="filterByBook('Ruth')">Ruth</button>
+        <button onclick="filterByBook('Lamentations')">Lamentations</button>
+        <button onclick="filterByBook('Ecclesiastes')">Ecclesiastes</button>
+        <button onclick="filterByBook('Esther')">Esther</button>
+        <button onclick="filterByBook('Daniel')">Daniel</button>
+        <button onclick="filterByBook('Ezra')">Ezra</button>
+        <button onclick="filterByBook('Nehemiah')">Nehemiah</button>
+        <button onclick="filterByBook('I Chronicles')">I Chronicles</button>
+        <button onclick="filterByBook('II Chronicles')">II Chronicles</button>
+    </div>
+
+    <div class="filter-buttons">
+        <button onclick="filterByDevice('')">Show All Devices</button>
+        <button onclick="filterByDevice('waw-explicativum')">Waw Explicativum</button>
+        <button onclick="filterByDevice('hendiadys')">Hendiadys</button>
+    </div>
+
+    <div class="verses">
+        <p>Please select a book or device to view verses.</p>
+    </div>
+
+    <footer>
+        Powered by JavaScript & XLSX | Designed for easier exploration of literary devices in the Bible
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+    <script>
+        const excelUrl = 'tanakh_verses_hebrew.xlsx';
+        let versesData = [];
+
+        // Load the Excel file when a book or device is selected
+        function loadVerses(callback) {
+            if (versesData.length === 0) {
+                fetch(excelUrl)
+                    .then(response => response.arrayBuffer())
+                    .then(data => {
+                        const workbook = XLSX.read(new Uint8Array(data), { type: "array" });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        versesData = json;
+                        console.log("Excel Data Loaded:", json); // Log the data loaded from Excel
+                        callback();
+                    });
+            } else {
+                callback();
+            }
+        }
+
+        // Display the verses based on the filter
+        function displayVerses(filterFn) {
+            const versesContainer = document.querySelector('.verses');
+            versesContainer.innerHTML = ''; // Clear previous verses
+
+            let hasVerses = false;
+
+            console.log("Loaded Verses Data:", versesData); // Log all the verses data
+
+            versesData.forEach(row => {
+                const [book, chapter, verse, text, device, words] = row;
+
+                // Log the current verse and device for debugging
+                console.log("Processing Verse:", { book, chapter, verse, text, device, words });
+
+                if (!book || !chapter || !verse || !text) return; // Skip empty rows
+
+                if (filterFn(book, device)) {
+                    hasVerses = true;
+
+                    // Create a verse div for each verse
+                    const verseDiv = document.createElement("div");
+                    verseDiv.className = `verse ${device ? 'device-' + device.toLowerCase().replace(/\s+/g, '-') : ''}`;
+                    verseDiv.setAttribute('data-book', book);
+
+                    // Highlight words only if they exist and are defined
+                    const highlightedText = words && text.includes(words) ? text.replace(words, `<span class="highlight">${words}</span>`) : text;
+                    verseDiv.innerHTML = `<span>${book} ${chapter}:${verse}</span> <span>${highlightedText}</span>`;
+
+                    versesContainer.appendChild(verseDiv);
+                }
+            });
+
+            if (!hasVerses) {
+                versesContainer.innerHTML = '<p>No verses found for the selected filter.</p>';
+            }
+        }
+
+        // Filter by Literary Device
+        function filterByDevice(device) {
+    console.log("Filtering by Device:", device); // Log the selected device
+
+    loadVerses(() => {
+        displayVerses((book, currentDevice) => {
+            // Log each device and the selected filter for debugging
+            console.log(`Current Device: '${currentDevice}', Selected Device: '${device}'`);
+            
+            // Ensure both device and currentDevice are properly trimmed and lowercased
+            const formattedCurrentDevice = currentDevice ? currentDevice.trim().toLowerCase() : '';
+            const formattedSelectedDevice = device ? device.trim().toLowerCase() : '';
+
+            // Log the formatted values to compare
+            console.log(`Formatted Device: '${formattedCurrentDevice}', Selected: '${formattedSelectedDevice}'`);
+
+            // Return true if devices match, or if no device is selected (show all)
+            return !formattedSelectedDevice || formattedCurrentDevice === formattedSelectedDevice;
+        });
+    });
+}
+
+        // Filter by Book
+        function filterByBook(book) {
+            console.log("Filtering by Book:", book); // Log the selected book
+            loadVerses(() => {
+                displayVerses((currentBook) => currentBook === book);
+            });
+        }
+    </script>
+</body>
+</html>
