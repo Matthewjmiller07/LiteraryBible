@@ -147,6 +147,13 @@
             // Add more devices and their corresponding classes
         };
 
+        const bookToParsha = {
+    "Genesis": ["Bereshit", "Noach", "Lech-Lecha", "Vayera", "Chayei Sarah", "Toldot", "Vayetze", "Vayishlach", "Vayeshev", "Miketz", "Vayigash", "Vayechi"],
+    "Exodus": ["Shemot", "Va'era", "Bo", "Beshalach", "Yitro", "Mishpatim", "Terumah", "Tetzaveh", "Ki Tisa", "Vayakhel", "Pekudei"],
+    "Leviticus": ["Vayikra", "Tzav", "Shmini", "Tazria", "Metzora", "Acharei Mot", "Kedoshim", "Emor", "Behar", "Bechukotai"],
+    "Numbers": ["Bamidbar", "Nasso", "Beha'alotecha", "Sh'lach", "Korach", "Chukat", "Balak", "Pinchas", "Matot", "Masei"],
+    "Deuteronomy": ["Devarim", "Va'etchanan", "Eikev", "Re'eh", "Shoftim", "Ki Teitzei", "Ki Tavo", "Nitzavim", "Vayelech", "Ha'azinu", "V'Zot HaBerachah"]
+};
         const tanachBooks = {
     "Torah": [
         { value: "Genesis", display: "Genesis" },
@@ -910,82 +917,64 @@ function filterBySection() {
     document.getElementById('parsha-label').style.display = 'none';
     document.getElementById('aliya-label').style.display = 'none';
 
-    console.log('Selected section:', sectionSelect);
-
     // Populate the book dropdown based on the selected section
     if (tanachBooks[sectionSelect]) {
         tanachBooks[sectionSelect].forEach(book => {
             const option = document.createElement('option');
-            option.value = book.value;  // Use the value property for internal logic
-            option.textContent = book.display;  // Use the display property for visual purposes
+            option.value = book.value;  
+            option.textContent = book.display;  
             bookSelect.appendChild(option);
-
-            console.log('Populating book:', book.display);  // Log each book being added
         });
-    } else {
-        console.warn('No books found for section:', sectionSelect);
     }
+
+    // Display all verses from the selected section (Torah, Neviim, or Ketuvim)
+    loadVerses(() => {
+        displayVerses((book) => tanachBooks[sectionSelect].some(b => b.value === book));
+    });
 }
 
-// Mapping between books and Parsha names
-const bookToParsha = {
-    "Genesis": ["Bereshit", "Noach", "Lech-Lecha", "Vayera", "Chayei Sarah", "Toldot", "Vayetze", "Vayishlach", "Vayeshev", "Miketz", "Vayigash", "Vayechi"],
-    "Exodus": ["Shemot", "Va'era", "Bo", "Beshalach", "Yitro", "Mishpatim", "Terumah", "Tetzaveh", "Ki Tisa", "Vayakhel", "Pekudei"],
-    "Leviticus": ["Vayikra", "Tzav", "Shmini", "Tazria", "Metzora", "Acharei Mot", "Kedoshim", "Emor", "Behar", "Bechukotai"],
-    "Numbers": ["Bamidbar", "Nasso", "Beha'alotecha", "Sh'lach", "Korach", "Chukat", "Balak", "Pinchas", "Matot", "Masei"],
-    "Deuteronomy": ["Devarim", "Va'etchanan", "Eikev", "Re'eh", "Shoftim", "Ki Teitzei", "Ki Tavo", "Nitzavim", "Vayelech", "Ha'azinu", "V'Zot HaBerachah"]
-};
-
-// Handle book selection
 // Handle book selection
 function filterByBook() {
-  const selectedBook = document.getElementById('book-select').value.trim(); 
-  const parshaSelect = document.getElementById('parsha-select');
-  const aliyaSelect = document.getElementById('aliya-select');
-  const versesContainer = document.querySelector('.verses');
+    const selectedBook = document.getElementById('book-select').value.trim(); 
+    const parshaSelect = document.getElementById('parsha-select');
+    const aliyaSelect = document.getElementById('aliya-select');
 
-  console.log('Selected book:', selectedBook);
+    // Reset Parsha and Aliya dropdowns
+    parshaSelect.innerHTML = '<option value="">Select a Parsha</option>';
+    aliyaSelect.innerHTML = '<option value="">Select an Aliya</option>';
 
-  // Reset dropdowns
-  parshaSelect.innerHTML = '<option value="">Select a Parsha</option>';
-  aliyaSelect.innerHTML = '<option value="">Select an Aliya</option>';
+    if (bookToParsha[selectedBook]) { 
+        bookToParsha[selectedBook].forEach(parsha => {
+            const option = document.createElement('option');
+            option.value = parsha;
+            option.textContent = parsha;
+            parshaSelect.appendChild(option);
+        });
 
-  // Check if the selected book is from the Torah section and populate Parsha dropdown if applicable
-  if (bookToParsha[selectedBook]) { 
-    bookToParsha[selectedBook].forEach(parsha => {
-      const option = document.createElement('option');
-      option.value = parsha;
-      option.textContent = parsha;
-      parshaSelect.appendChild(option);
-    });
+        // Show Parsha dropdown for Torah books
+        parshaSelect.style.display = 'block';
+        document.getElementById('parsha-label').style.display = 'block';
 
-    // Show Parsha and Aliya dropdowns for Torah books
-    parshaSelect.style.display = 'block';
-    document.getElementById('parsha-label').style.display = 'block';
-  } else {
-    console.log('Book is not part of Torah:', selectedBook);
+        // Display the whole book by default
+        loadVerses(() => {
+            displayVerses((book) => book === selectedBook);
+        });
+    } else {
+        // Hide Parsha and Aliya dropdowns for Neviim and Ketuvim
+        parshaSelect.style.display = 'none';
+        aliyaSelect.style.display = 'none';
+        document.getElementById('parsha-label').style.display = 'none';
+        document.getElementById('aliya-label').style.display = 'none';
 
-    // Hide Parsha and Aliya dropdowns for Neviim and Ketuvim
-    parshaSelect.style.display = 'none';
-    aliyaSelect.style.display = 'none';
-    document.getElementById('parsha-label').style.display = 'none';
-    document.getElementById('aliya-label').style.display = 'none';
-
-    // For Neviim and Ketuvim, display verses directly based on the selected book
-    loadVerses(() => {
-      displayVerses((currentBook) => {
-        const cleanedBook = currentBook.trim(); 
-        const match = cleanedBook === selectedBook; 
-        console.log(`Checking if "${cleanedBook}" matches "${selectedBook}":`, match);
-        return match;
-      });
-    });
-  }
+        // For Neviim and Ketuvim, display the whole book
+        loadVerses(() => {
+            displayVerses((book) => book === selectedBook);
+        });
+    }
 }
 
 // Handle Parsha selection
 function filterByParsha() {
-    const book = document.getElementById('book-select').value;
     const selectedParsha = document.getElementById('parsha-select').value;
     const aliyaSelect = document.getElementById('aliya-select');
 
@@ -1004,6 +993,9 @@ function filterByParsha() {
         // Show Aliya dropdown
         aliyaSelect.style.display = 'block';
         document.getElementById('aliya-label').style.display = 'block';
+
+        // Display the whole Parsha when selected
+        displayVersesForRange(parshas[selectedParsha]["Whole Parsha"]);
     }
 }
 
@@ -1011,50 +1003,49 @@ function filterByParsha() {
 function filterByAliya() {
     const selectedParsha = document.getElementById('parsha-select').value;
     const selectedAliya = document.getElementById('aliya-select').value;
-    const versesContainer = document.querySelector('.verses');
 
     if (parshas[selectedParsha] && parshas[selectedParsha][selectedAliya]) {
         const aliyahRange = parshas[selectedParsha][selectedAliya];
+        displayVersesForRange(aliyahRange);
+    }
+}
 
-        // Split the aliyah range into start and end (e.g., "Genesis 4:19-4:22")
-        const [startRange, endRange] = aliyahRange.split('-');
-        const [startBook, startChapterVerse] = startRange.split(' ');
-        const [startChapter, startVerse] = startChapterVerse.split(':');
-        const [endChapter, endVerse] = endRange.split(':');
+// Helper function to display verses for a given range
+function displayVersesForRange(range) {
+    const versesContainer = document.querySelector('.verses');
+    const [startRange, endRange] = range.split('-');
+    const [startBook, startChapterVerse] = startRange.split(' ');
+    const [startChapter, startVerse] = startChapterVerse.split(':');
+    const [endChapter, endVerse] = endRange.split(':');
 
-        // Filter verses within the selected aliyah range
-        const filteredVerses = versesData.filter(row => {
-            const [book, chapter, verse] = row;
+    // Filter and display verses within the selected range
+    const filteredVerses = versesData.filter(row => {
+        const [book, chapter, verse] = row;
 
-            if (book !== startBook) return false; 
+        if (book !== startBook) return false;
 
-            const chapterNum = parseInt(chapter, 10);
-            const verseNum = parseInt(verse, 10);
+        const chapterNum = parseInt(chapter, 10);
+        const verseNum = parseInt(verse, 10);
 
-            // Check if the verse is within the range
-            const withinRange = (
-                (chapterNum > parseInt(startChapter) || (chapterNum === parseInt(startChapter) && verseNum >= parseInt(startVerse))) &&
-                (chapterNum < parseInt(endChapter) || (chapterNum === parseInt(endChapter) && verseNum <= parseInt(endVerse)))
-            );
+        const withinRange = (
+            (chapterNum > parseInt(startChapter) || (chapterNum === parseInt(startChapter) && verseNum >= parseInt(startVerse))) &&
+            (chapterNum < parseInt(endChapter) || (chapterNum === parseInt(endChapter) && verseNum <= parseInt(endVerse)))
+        );
 
-            return withinRange;
+        return withinRange;
+    });
+
+    if (filteredVerses.length > 0) {
+        versesContainer.innerHTML = ''; 
+        filteredVerses.forEach(row => {
+            const [book, chapter, verse, text] = row;
+            const verseDiv = document.createElement('div');
+            verseDiv.className = 'verse';
+            verseDiv.innerHTML = `<strong>${book} ${chapter}:${verse}</strong> - ${text}`;
+            versesContainer.appendChild(verseDiv);
         });
-
-        // Display filtered verses
-        if (filteredVerses.length > 0) {
-            versesContainer.innerHTML = ''; 
-            filteredVerses.forEach(row => {
-                const [book, chapter, verse, text] = row;
-                const verseDiv = document.createElement('div');
-                verseDiv.className = 'verse';
-                verseDiv.innerHTML = `<strong>${book} ${chapter}:${verse}</strong> - ${text}`;
-                versesContainer.appendChild(verseDiv);
-            });
-        } else {
-            versesContainer.innerHTML = `<p>No verses found for the selected Aliya.</p>`;
-        }
     } else {
-        versesContainer.innerHTML = `<p>No verses found for the selected Aliya.</p>`;
+        versesContainer.innerHTML = `<p>No verses found for the selected range.</p>`;
     }
 }
 
