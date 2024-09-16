@@ -57,7 +57,7 @@
 }
 
 .device-wordplay {
-    background-color: rgb(255, 255, 0); /* Yellow */
+    background-color: rgb(213, 140, 4); /* Yellow */
     color: black;
 }
 
@@ -266,7 +266,8 @@
 };
 
         // Load the Google Sheets data
-        function loadVerses(callback) {
+        // Load the Google Sheets data and count the devices
+function loadVerses(callback) {
     if (versesData.length === 0) {
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
 
@@ -275,13 +276,63 @@
             .then(data => {
                 versesData = data.values || [];
                 console.log(data.values.slice(0, 5)); // Log the first 5 rows of raw data
+                updateDeviceCounts();  // Call update device counts after loading the data
                 callback();
             })
             .catch(error => console.error('Error loading Google Sheets data:', error));
     } else {
+        updateDeviceCounts(); // If data is already loaded, update counts immediately
         callback();
     }
 }
+
+// Function to update the counts of each literary device from Column E
+function updateDeviceCounts() {
+    // List of all devices
+    const devices = [
+        'waw-explicativum',
+        'hendiadys',
+        'synecdoche',
+        'merism',
+        'wordplay',
+        'euphemism',
+        'simile',
+        'ambiguity'
+    ];
+
+    // Initialize counts for each device
+    const deviceCounts = {
+        'waw-explicativum': 0,
+        'hendiadys': 0,
+        'synecdoche': 0,
+        'merism': 0,
+        'wordplay': 0,
+        'euphemism': 0,
+        'simile': 0,
+        'ambiguity': 0
+    };
+
+    // Loop through the loaded verses data to count occurrences in Column E (index 4)
+    versesData.forEach(row => {
+        const device = row[4]?.toLowerCase(); // Column E contains the device (make lowercase to match)
+        if (device && deviceCounts.hasOwnProperty(device)) {
+            deviceCounts[device]++;
+        }
+    });
+
+    // Update the counts in the buttons
+    devices.forEach(device => {
+        const countElement = document.getElementById(`count-${device}`);
+        if (countElement) {
+            countElement.innerText = deviceCounts[device]; // Update the count for the corresponding device
+        }
+    });
+}
+
+// Call the function to load data and count devices on page load
+loadVerses(() => {
+    displayVerses(() => true); // Show all devices on page load
+});
 
         // Display the verses with device highlights and filters
         // Display the verses with device highlights and correct numbering
@@ -1113,28 +1164,6 @@ function displayVersesForRange(range) {
 }
 
 
-function updateDeviceCounts() {
-    // List of all devices
-    const devices = [
-        'waw-explicativum',
-        'hendiadys',
-        'synecdoche',
-        'merism',
-        'wordplay',
-        'euphemism',
-        'simile',
-        'ambiguity'
-    ];
-
-    // Loop through each device and count the occurrences
-    devices.forEach(device => {
-        const count = document.querySelectorAll(`.device-${device}`).length;
-        document.getElementById(`count-${device}`).innerText = count;
-    });
-}
-
-// Call the function to update the counts
-updateDeviceCounts();
 
     </script>
 </body>
