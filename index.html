@@ -157,14 +157,30 @@
     </div>
 
     <div class="filter-buttons">
-        <button class="device-waw-explicativum" onclick="filterByDevice('waw-explicativum')">Waw Explicativum</button>
-        <button class="device-hendiadys" onclick="filterByDevice('hendiadys')">Hendiadys</button>
-        <button class="device-synecdoche" onclick="filterByDevice('synecdoche')">Synecdoche</button>
-        <button class="device-merism" onclick="filterByDevice('merism')">Merism</button>
-        <button class="device-wordplay" onclick="filterByDevice('wordplay')">Wordplay</button>
-        <button class="device-euphemism" onclick="filterByDevice('euphemism')">Euphemism</button>
-        <button class="device-simile" onclick="filterByDevice('simile')">Simile</button>
-        <button class="device-ambiguity" onclick="filterByDevice('ambiguity')">Ambiguity</button>
+        <button class="device-waw-explicativum" onclick="filterByDevice('waw-explicativum')">
+            Waw Explicativum (<span id="count-waw-explicativum">0</span>)
+        </button>
+        <button class="device-hendiadys" onclick="filterByDevice('hendiadys')">
+            Hendiadys (<span id="count-hendiadys">0</span>)
+        </button>
+        <button class="device-synecdoche" onclick="filterByDevice('synecdoche')">
+            Synecdoche (<span id="count-synecdoche">0</span>)
+        </button>
+        <button class="device-merism" onclick="filterByDevice('merism')">
+            Merism (<span id="count-merism">0</span>)
+        </button>
+        <button class="device-wordplay" onclick="filterByDevice('wordplay')">
+            Wordplay (<span id="count-wordplay">0</span>)
+        </button>
+        <button class="device-euphemism" onclick="filterByDevice('euphemism')">
+            Euphemism (<span id="count-euphemism">0</span>)
+        </button>
+        <button class="device-simile" onclick="filterByDevice('simile')">
+            Simile (<span id="count-simile">0</span>)
+        </button>
+        <button class="device-ambiguity" onclick="filterByDevice('ambiguity')">
+            Ambiguity (<span id="count-ambiguity">0</span>)
+        </button>
     </div>
 
     <div class="verses">
@@ -1097,7 +1113,28 @@ function displayVersesForRange(range) {
 }
 
 
+function updateDeviceCounts() {
+    // List of all devices
+    const devices = [
+        'waw-explicativum',
+        'hendiadys',
+        'synecdoche',
+        'merism',
+        'wordplay',
+        'euphemism',
+        'simile',
+        'ambiguity'
+    ];
 
+    // Loop through each device and count the occurrences
+    devices.forEach(device => {
+        const count = document.querySelectorAll(`.device-${device}`).length;
+        document.getElementById(`count-${device}`).innerText = count;
+    });
+}
+
+// Call the function to update the counts
+updateDeviceCounts();
 
     </script>
 </body>
