@@ -36,20 +36,56 @@
         }
 
         /* Device Color Classes */
-        .device-waw-explicativum {
-            background-color: rgb(55, 255, 0);
-            color: black;
-        }
-        
-        .device-hendiadys {
-            background-color: lightblue;
-            color: black;
-        }
+.device-waw-explicativum {
+    background-color: rgb(55, 255, 0);
+    color: black;
+}
 
-        .device-waw-explicativum .highlight,
-        .device-hendiadys .highlight {
-            font-weight: bold;
-        }
+.device-hendiadys {
+    background-color: #add8e6;
+    color: black;
+}
+
+.device-synecdoche {
+    background-color: rgb(255, 165, 0); /* Orange */
+    color: black;
+}
+
+.device-merism {
+    background-color: rgb(255, 105, 180); /* Hot pink */
+    color: black;
+}
+
+.device-wordplay {
+    background-color: rgb(255, 255, 0); /* Yellow */
+    color: black;
+}
+
+.device-euphemism {
+    background-color: rgb(176, 224, 230); /* Powder blue */
+    color: black;
+}
+
+.device-simile {
+    background-color: rgb(123, 104, 238); /* Medium slate blue */
+    color: white;
+}
+
+.device-ambiguity {
+    background-color: rgb(255, 0, 0); /* Red-orange */
+    color: white;
+}
+
+.device-synecdoche .highlight,
+.device-merism .highlight,
+.device-wordplay .highlight,
+.device-euphemism .highlight,
+.device-simile .highlight,
+.device-ambiguity .highlight,
+.device-waw-explicativum .highlight,
+.device-hendiadys .highlight {
+    font-weight: bold;
+}
 
         .verses {
             max-width: 800px;
@@ -123,7 +159,12 @@
     <div class="filter-buttons">
         <button class="device-waw-explicativum" onclick="filterByDevice('waw-explicativum')">Waw Explicativum</button>
         <button class="device-hendiadys" onclick="filterByDevice('hendiadys')">Hendiadys</button>
-        <!-- More device buttons -->
+        <button class="device-synecdoche" onclick="filterByDevice('synecdoche')">Synecdoche</button>
+        <button class="device-merism" onclick="filterByDevice('merism')">Merism</button>
+        <button class="device-wordplay" onclick="filterByDevice('wordplay')">Wordplay</button>
+        <button class="device-euphemism" onclick="filterByDevice('euphemism')">Euphemism</button>
+        <button class="device-simile" onclick="filterByDevice('simile')">Simile</button>
+        <button class="device-ambiguity" onclick="filterByDevice('ambiguity')">Ambiguity</button>
     </div>
 
     <div class="verses">
@@ -143,7 +184,13 @@
 
         const deviceColors = {
             'waw-explicativum': 'device-waw-explicativum',
-            'hendiadys': 'device-hendiadys'
+            'hendiadys': 'device-hendiadys',
+            'synecdoche': 'device-synecdoche',
+            'merism': 'device-merism',
+            'wordplay': 'device-wordplay',
+            'euphemism': 'device-euphemism',
+            'simile': 'device-simile',
+            'ambiguity': 'device-ambiguity',
             // Add more devices and their corresponding classes
         };
 
