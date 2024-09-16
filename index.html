@@ -6,7 +6,7 @@
     <title>Color-Coded Bible</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew&display=swap" rel="stylesheet">
     <style>
-                body {
+        body {
             font-family: 'Noto Sans Hebrew', 'Arial', sans-serif;
             background-color: #f9f9f9;
             margin: 0;
@@ -25,8 +25,6 @@
         }
 
         .filter-buttons button, .book-filter button {
-            background-color: #007BFF;
-            color: white;
             border: none;
             padding: 10px 20px;
             margin: 5px;
@@ -34,10 +32,23 @@
             font-size: 16px;
             border-radius: 5px;
             transition: background-color 0.3s ease;
+            color: white;
         }
 
-        .filter-buttons button:hover, .book-filter button:hover {
-            background-color: #0056b3;
+        /* Device Color Classes */
+        .device-waw-explicativum {
+            background-color: yellow;
+            color: black;
+        }
+        
+        .device-hendiadys {
+            background-color: lightblue;
+            color: black;
+        }
+
+        .device-waw-explicativum .highlight,
+        .device-hendiadys .highlight {
+            font-weight: bold;
         }
 
         .verses {
@@ -56,29 +67,36 @@
             border-bottom: 1px solid #ddd;
         }
 
-        .verse span {
-            display: block;
-            color: #444;
-        }
-
-        .highlight {
-            color: red;
-            font-weight: bold;
-        }
-
         footer {
             text-align: center;
             margin-top: 20px;
             color: #777;
         }
+
+        /* Style for superscript numbers */
+.superscript {
+    font-size: 0.7em;
+    vertical-align: super;
+}
+
+/* Style for source mapping */
+.source-block {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.source-block a {
+    color: #6A0DAD;  /* Change this to match the theme */
+    text-decoration: none;
+}
     </style>
 </head>
 <body>
 
     <h1>Color-Coded Bible</h1>
 
-    <!-- Book filter buttons -->
-    <div class="book-filter">
+     <!-- Book filter buttons -->
+     <div class="book-filter">
         <button onclick="filterByBook('Genesis')">Genesis</button>
         <button onclick="filterByBook('Exodus')">Exodus</button>
         <button onclick="filterByBook('Leviticus')">Leviticus</button>
@@ -123,9 +141,9 @@
     </div>
 
     <div class="filter-buttons">
-        <button onclick="filterByDevice('')">Show All Devices</button>
-        <button onclick="filterByDevice('waw-explicativum')">Waw Explicativum</button>
-        <button onclick="filterByDevice('hendiadys')">Hendiadys</button>
+        <button class="device-waw-explicativum" onclick="filterByDevice('waw-explicativum')">Waw Explicativum</button>
+        <button class="device-hendiadys" onclick="filterByDevice('hendiadys')">Hendiadys</button>
+        <!-- More device buttons -->
     </div>
 
     <div class="verses">
@@ -139,9 +157,15 @@
     <script>
         const API_KEY = 'AIzaSyAJH1Uoae-nnNRq2DmMUsdOUwhhsW2E8yU';
         const SHEET_ID = '1AQigxLa6S8HAoVeUYohh4AjQ_9YU_HgXBjuXZdl6msg';
-        const RANGE = 'tanakh_verses_hebrew!A:F';  // Update with correct sheet name
+        const RANGE = 'tanakh_verses_hebrew!A:H';
 
         let versesData = [];
+
+        const deviceColors = {
+            'waw-explicativum': 'device-waw-explicativum',
+            'hendiadys': 'device-hendiadys'
+            // Add more devices and their corresponding classes
+        };
 
         // Load the Google Sheets data
         function loadVerses(callback) {
@@ -152,7 +176,6 @@
                     .then(response => response.json())
                     .then(data => {
                         versesData = data.values || [];
-                        console.log("Google Sheets Data Loaded:", versesData); // Log the data loaded from Google Sheets
                         callback();
                     })
                     .catch(error => console.error('Error loading Google Sheets data:', error));
@@ -161,73 +184,120 @@
             }
         }
 
-        // Display the verses based on the filter
-        function displayVerses(filterFn) {
-            const versesContainer = document.querySelector('.verses');
-            versesContainer.innerHTML = ''; // Clear previous verses
+        // Display the verses with device highlights and filters
+        // Display the verses with device highlights and correct numbering
+// Display the verses with device highlights and correct numbering
+// Display the verses with device highlights and correct numbering
+function displayVerses(filterFn) {
+    const versesContainer = document.querySelector('.verses');
+    versesContainer.innerHTML = ''; // Clear previous verses
 
-            let hasVerses = false;
+    let hasVerses = false;
+    const verseMap = {};
 
-            console.log("Loaded Verses Data:", versesData); // Log all the verses data
+    // Process all rows to accumulate devices for the same verse
+    versesData.forEach(row => {
+        const [book, chapter, verse, text, device, words, sources, urls] = row;
+        if (!book || !chapter || !verse || !text) return;
 
-            versesData.forEach(row => {
-                const [book, chapter, verse, text, device, words] = row;
+        const verseKey = `${book} ${chapter}:${verse}`;
+        if (!verseMap[verseKey]) {
+            verseMap[verseKey] = {
+                text: text,
+                devices: [],
+                sources: [],
+                urls: []
+            };
+        }
 
-                // Log the current verse and device for debugging
-                console.log("Processing Verse:", { book, chapter, verse, text, device, words });
+        // Add the device and words
+        verseMap[verseKey].devices.push({ device, words });
 
-                if (!book || !chapter || !verse || !text) return; // Skip empty rows
+        // Split sources and URLs by semicolons
+        const sourceArray = sources ? sources.split(';').map(src => src.trim()) : [];
+        const urlArray = urls ? urls.split(';').map(url => url.trim()) : [];
 
-                if (filterFn(book, device)) {
-                    hasVerses = true;
+        // Add sources and URLs
+        verseMap[verseKey].sources.push(sourceArray); // Store as array of arrays
+        verseMap[verseKey].urls.push(urlArray);       // Store as array of arrays
+    });
 
-                    // Create a verse div for each verse
-                    const verseDiv = document.createElement("div");
-                    verseDiv.className = `verse ${device ? 'device-' + device.toLowerCase().replace(/\s+/g, '-') : ''}`;
-                    verseDiv.setAttribute('data-book', book);
+    // Display the verses based on the filter
+    Object.keys(verseMap).forEach(verseKey => {
+        const verseData = verseMap[verseKey];
+        const [book, chapterVerse] = verseKey.split(' ', 2);
 
-                    // Highlight words only if they exist and are defined
-                    const highlightedText = words && text.includes(words) ? text.replace(words, `<span class="highlight">${words}</span>`) : text;
-                    verseDiv.innerHTML = `<span>${book} ${chapter}:${verse}</span> <span>${highlightedText}</span>`;
+        if (filterFn(book, verseData.devices)) {
+            hasVerses = true;
 
-                    versesContainer.appendChild(verseDiv);
+            // Create the verse container
+            const verseDiv = document.createElement("div");
+            verseDiv.className = "verse";
+
+            // Reverse the superscript numbering for RTL Hebrew text
+            let highlightedText = verseData.text;
+            let sourceCounter = verseData.devices.length; // Start from the highest number for RTL text
+            let sourceMapping = [];  // Store each source mapping
+
+            verseData.devices.forEach((d, index) => {
+                if (d.words) {
+                    const regex = new RegExp(d.words, 'g');
+                    // Add superscript for each device without the device name
+                    highlightedText = highlightedText.replace(regex, `<span class="highlight ${deviceColors[d.device.toLowerCase()]}">${d.words}<sup class="superscript">${sourceCounter}</sup></span>`);
+
+                    // Add the sources for this device, along with the device name
+                    let sourcesForDevice = verseData.sources[index].map((source, srcIndex) => 
+                        `<a href="${verseData.urls[index][srcIndex]}" class="source" target="_blank">${source}</a>`
+                    ).join(', ');
+
+                    // Add to source mapping, showing both device name and sources
+                    sourceMapping.push(`<span class="${deviceColors[d.device.toLowerCase()]}">${sourceCounter}. (${d.device}) ${sourcesForDevice}</span>`);
+                    sourceCounter--; // Decrement for next device
                 }
             });
 
-            if (!hasVerses) {
-                versesContainer.innerHTML = '<p>No verses found for the selected filter.</p>';
-            }
+            // Reverse the source order to match the correct RTL superscript order
+            sourceMapping.reverse();
+
+            // Construct the source mapping below the verse
+            let sourcesDisplay = `<div class="source-block">${sourceMapping.join('<br>')}</div>`;
+
+            // Add the verse text and sources to the verse container
+            verseDiv.innerHTML = `<span>${verseKey}</span> <span>${highlightedText}</span><br/>${sourcesDisplay}`;
+            versesContainer.appendChild(verseDiv);
         }
+    });
+
+    if (!hasVerses) {
+        versesContainer.innerHTML = '<p>No verses found for the selected filter.</p>';
+    }
+}
 
         // Filter by Literary Device
         function filterByDevice(device) {
-            console.log("Filtering by Device:", device); // Log the selected device
-
             loadVerses(() => {
-                displayVerses((book, currentDevice) => {
-                    // Log each device and the selected filter for debugging
-                    console.log(`Current Device: '${currentDevice}', Selected Device: '${device}'`);
-                    
-                    // Ensure both device and currentDevice are properly trimmed and lowercased
-                    const formattedCurrentDevice = currentDevice ? currentDevice.trim().toLowerCase() : '';
-                    const formattedSelectedDevice = device ? device.trim().toLowerCase() : '';
-
-                    // Log the formatted values to compare
-                    console.log(`Formatted Device: '${formattedCurrentDevice}', Selected: '${formattedSelectedDevice}'`);
-
-                    // Return true if devices match, or if no device is selected (show all)
-                    return !formattedSelectedDevice || formattedCurrentDevice === formattedSelectedDevice;
+                displayVerses((book, devices) => {
+                    return devices.some(d => {
+                        if (d.device) {
+                            return !device || d.device.toLowerCase() === device.toLowerCase();
+                        }
+                        return false;
+                    });
                 });
             });
         }
 
         // Filter by Book
         function filterByBook(book) {
-            console.log("Filtering by Book:", book); // Log the selected book
             loadVerses(() => {
                 displayVerses((currentBook) => currentBook === book);
             });
         }
+
+        // Initial display showing all devices by default
+        loadVerses(() => {
+            displayVerses(() => true); // Show all devices on page load
+        });
     </script>
 </body>
 </html>
