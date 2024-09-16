@@ -37,7 +37,7 @@
 
         /* Device Color Classes */
         .device-waw-explicativum {
-            background-color: yellow;
+            background-color: rgb(55, 255, 0);
             color: black;
         }
         
@@ -95,49 +95,29 @@
 
     <h1>Color-Coded Bible</h1>
 
-     <!-- Book filter buttons -->
-     <div class="book-filter">
-        <button onclick="filterByBook('Genesis')">Genesis</button>
-        <button onclick="filterByBook('Exodus')">Exodus</button>
-        <button onclick="filterByBook('Leviticus')">Leviticus</button>
-        <button onclick="filterByBook('Numbers')">Numbers</button>
-        <button onclick="filterByBook('Deuteronomy')">Deuteronomy</button>
-        <!-- Prophets -->
-        <button onclick="filterByBook('Joshua')">Joshua</button>
-        <button onclick="filterByBook('Judges')">Judges</button>
-        <button onclick="filterByBook('I Samuel')">I Samuel</button>
-        <button onclick="filterByBook('II Samuel')">II Samuel</button>
-        <button onclick="filterByBook('I Kings')">I Kings</button>
-        <button onclick="filterByBook('II Kings')">II Kings</button>
-        <button onclick="filterByBook('Isaiah')">Isaiah</button>
-        <button onclick="filterByBook('Jeremiah')">Jeremiah</button>
-        <button onclick="filterByBook('Ezekiel')">Ezekiel</button>
-        <button onclick="filterByBook('Hosea')">Hosea</button>
-        <button onclick="filterByBook('Joel')">Joel</button>
-        <button onclick="filterByBook('Amos')">Amos</button>
-        <button onclick="filterByBook('Obadiah')">Obadiah</button>
-        <button onclick="filterByBook('Jonah')">Jonah</button>
-        <button onclick="filterByBook('Micah')">Micah</button>
-        <button onclick="filterByBook('Nahum')">Nahum</button>
-        <button onclick="filterByBook('Habakkuk')">Habakkuk</button>
-        <button onclick="filterByBook('Zephaniah')">Zephaniah</button>
-        <button onclick="filterByBook('Haggai')">Haggai</button>
-        <button onclick="filterByBook('Zechariah')">Zechariah</button>
-        <button onclick="filterByBook('Malachi')">Malachi</button>
-        <!-- Writings -->
-        <button onclick="filterByBook('Psalms')">Psalms</button>
-        <button onclick="filterByBook('Proverbs')">Proverbs</button>
-        <button onclick="filterByBook('Job')">Job</button>
-        <button onclick="filterByBook('Song of Songs')">Song of Songs</button>
-        <button onclick="filterByBook('Ruth')">Ruth</button>
-        <button onclick="filterByBook('Lamentations')">Lamentations</button>
-        <button onclick="filterByBook('Ecclesiastes')">Ecclesiastes</button>
-        <button onclick="filterByBook('Esther')">Esther</button>
-        <button onclick="filterByBook('Daniel')">Daniel</button>
-        <button onclick="filterByBook('Ezra')">Ezra</button>
-        <button onclick="filterByBook('Nehemiah')">Nehemiah</button>
-        <button onclick="filterByBook('I Chronicles')">I Chronicles</button>
-        <button onclick="filterByBook('II Chronicles')">II Chronicles</button>
+    <div class="filter-section">
+        <label for="section-select">Select Section: </label>
+        <select id="section-select" onchange="filterBySection()">
+            <option value="">Select Section</option>
+            <option value="Torah">Torah</option>
+            <option value="Neviim">Neviim</option>
+            <option value="Ketuvim">Ketuvim</option>
+        </select>
+    
+        <label for="book-select">Select Book: </label>
+        <select id="book-select" onchange="filterByBook()">
+            <option value="">Select a Book</option>
+        </select>
+    
+        <label for="parsha-select" id="parsha-label" style="display:none;">Select Parsha: </label>
+        <select id="parsha-select" onchange="filterByParsha()" style="display:none;">
+            <option value="">Select a Parsha</option>
+        </select>
+    
+        <label for="aliya-select" id="aliya-label" style="display:none;">Select Aliya: </label>
+        <select id="aliya-select" onchange="filterByAliya()" style="display:none;">
+            <option value="">Select an Aliya</option>
+        </select>
     </div>
 
     <div class="filter-buttons">
@@ -167,27 +147,88 @@
             // Add more devices and their corresponding classes
         };
 
+        const tanachBooks = {
+    "Torah": [
+        { value: "Genesis", display: "Genesis" },
+        { value: "Exodus", display: "Exodus" },
+        { value: "Leviticus", display: "Leviticus" },
+        { value: "Numbers", display: "Numbers" },
+        { value: "Deuteronomy", display: "Deuteronomy" }
+    ],
+    "Neviim": [
+        { value: "Joshua", display: "Joshua" },
+        { value: "Judges", display: "Judges" },
+        { value: "1Samuel", display: "1 Samuel" },
+        { value: "2Samuel", display: "2 Samuel" },
+        { value: "1Kings", display: "1 Kings" },
+        { value: "2Kings", display: "2 Kings" },
+        { value: "Isaiah", display: "Isaiah" },
+        { value: "Jeremiah", display: "Jeremiah" },
+        { value: "Ezekiel", display: "Ezekiel" },
+        { value: "Hosea", display: "Hosea" },
+        { value: "Joel", display: "Joel" },
+        { value: "Amos", display: "Amos" },
+        { value: "Obadiah", display: "Obadiah" },
+        { value: "Jonah", display: "Jonah" },
+        { value: "Micah", display: "Micah" },
+        { value: "Nahum", display: "Nahum" },
+        { value: "Habakkuk", display: "Habakkuk" },
+        { value: "Zephaniah", display: "Zephaniah" },
+        { value: "Haggai", display: "Haggai" },
+        { value: "Zechariah", display: "Zechariah" },
+        { value: "Malachi", display: "Malachi" }
+    ],
+    "Ketuvim": [
+        { value: "Psalms", display: "Psalms" },
+        { value: "Proverbs", display: "Proverbs" },
+        { value: "Job", display: "Job" },
+        { value: "SongofSongs", display: "Song of Songs" },
+        { value: "Ruth", display: "Ruth" },
+        { value: "Lamentations", display: "Lamentations" },
+        { value: "Ecclesiastes", display: "Ecclesiastes" },
+        { value: "Esther", display: "Esther" },
+        { value: "Daniel", display: "Daniel" },
+        { value: "Ezra", display: "Ezra" },
+        { value: "Nehemiah", display: "Nehemiah" },
+        { value: "1Chronicles", display: "1 Chronicles" },
+        { value: "2Chronicles", display: "2 Chronicles" }
+    ]
+};
+
         // Load the Google Sheets data
         function loadVerses(callback) {
-            if (versesData.length === 0) {
-                const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
-                
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        versesData = data.values || [];
-                        callback();
-                    })
-                    .catch(error => console.error('Error loading Google Sheets data:', error));
-            } else {
+    if (versesData.length === 0) {
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                versesData = data.values || [];
+                console.log(data.values.slice(0, 5)); // Log the first 5 rows of raw data
                 callback();
-            }
-        }
+            })
+            .catch(error => console.error('Error loading Google Sheets data:', error));
+    } else {
+        callback();
+    }
+}
 
         // Display the verses with device highlights and filters
         // Display the verses with device highlights and correct numbering
 // Display the verses with device highlights and correct numbering
 // Display the verses with device highlights and correct numbering
+function getDisplayName(bookValue) {
+    for (let section in tanachBooks) {
+        const books = tanachBooks[section];
+        for (let book of books) {
+            if (book.value.toLowerCase() === bookValue.toLowerCase()) {
+                return book.display; // Return the display name with spaces
+            }
+        }
+    }
+    return bookValue; // Default to original value if not found
+}
+
 function displayVerses(filterFn) {
     const versesContainer = document.querySelector('.verses');
     versesContainer.innerHTML = ''; // Clear previous verses
@@ -199,6 +240,9 @@ function displayVerses(filterFn) {
     versesData.forEach(row => {
         const [book, chapter, verse, text, device, words, sources, urls] = row;
         if (!book || !chapter || !verse || !text) return;
+
+        // Transform book name for display (spaces)
+        const displayBook = getDisplayName(book);
 
         const verseKey = `${book} ${chapter}:${verse}`;
         if (!verseMap[verseKey]) {
@@ -226,6 +270,9 @@ function displayVerses(filterFn) {
     Object.keys(verseMap).forEach(verseKey => {
         const verseData = verseMap[verseKey];
         const [book, chapterVerse] = verseKey.split(' ', 2);
+
+        // Get the display-friendly version of the book name (with spaces)
+        const displayBookName = getDisplayName(book);
 
         if (filterFn(book, verseData.devices)) {
             hasVerses = true;
@@ -262,8 +309,8 @@ function displayVerses(filterFn) {
             // Construct the source mapping below the verse
             let sourcesDisplay = `<div class="source-block">${sourceMapping.join('<br>')}</div>`;
 
-            // Add the verse text and sources to the verse container
-            verseDiv.innerHTML = `<span>${verseKey}</span> <span>${highlightedText}</span><br/>${sourcesDisplay}`;
+            // Add the verse text and sources to the verse container, using display-friendly book name
+            verseDiv.innerHTML = `<span>${displayBookName} ${chapterVerse}</span> <span>${highlightedText}</span><br/>${sourcesDisplay}`;
             versesContainer.appendChild(verseDiv);
         }
     });
@@ -298,6 +345,722 @@ function displayVerses(filterFn) {
         loadVerses(() => {
             displayVerses(() => true); // Show all devices on page load
         });
+
+
+
+const parshas = {
+"Bereshit": {
+"Whole Parsha": "Genesis 1:1-6:8",
+"Aliya 1": "Genesis 1:1-2:3",
+"Aliya 2": "Genesis 2:4-2:19",
+"Aliya 3": "Genesis 2:20-3:21",
+"Aliya 4": "Genesis 3:22-4:18",
+"Aliya 5": "Genesis 4:19-4:22",
+"Aliya 6": "Genesis 4:23-5:24",
+"Aliya 7": "Genesis 5:25-6:8"
+},
+"Noach": {
+"Whole Parsha": "Genesis 6:9-11:32",
+"Aliya 1": "Genesis 6:9-6:22",
+"Aliya 2": "Genesis 7:1-7:16",
+"Aliya 3": "Genesis 7:17-8:14",
+"Aliya 4": "Genesis 8:15-9:7",
+"Aliya 5": "Genesis 9:8-9:17",
+"Aliya 6": "Genesis 9:18-10:32",
+"Aliya 7": "Genesis 11:1-11:32"
+},
+"Lech-Lecha": {
+"Whole Parsha": "Genesis 12:1-17:27",
+"Aliya 1": "Genesis 12:1-12:13",
+"Aliya 2": "Genesis 12:14-13:4",
+"Aliya 3": "Genesis 13:5-13:18",
+"Aliya 4": "Genesis 14:1-14:20",
+"Aliya 5": "Genesis 14:21-15:6",
+"Aliya 6": "Genesis 15:7-17:6",
+"Aliya 7": "Genesis 17:7-17:27"
+},
+"Vayera": {
+"Whole Parsha": "Genesis 18:1-22:24",
+"Aliya 1": "Genesis 18:1-18:14",
+"Aliya 2": "Genesis 18:15-18:33",
+"Aliya 3": "Genesis 19:1-19:20",
+"Aliya 4": "Genesis 19:21-21:4",
+"Aliya 5": "Genesis 21:5-21:21",
+"Aliya 6": "Genesis 21:22-21:34",
+"Aliya 7": "Genesis 22:1-22:24"
+},
+"Chayei Sarah": {
+"Whole Parsha": "Genesis 23:1-25:18",
+"Aliya 1": "Genesis 23:1-23:16",
+"Aliya 2": "Genesis 23:17-24:9",
+"Aliya 3": "Genesis 24:10-24:26",
+"Aliya 4": "Genesis 24:27-24:52",
+"Aliya 5": "Genesis 24:53-24:67",
+"Aliya 6": "Genesis 25:1-25:11",
+"Aliya 7": "Genesis 25:12-25:18"
+},
+"Toldot": {
+"Whole Parsha": "Genesis 25:19-28:9",
+"Aliya 1": "Genesis 25:19-26:5",
+"Aliya 2": "Genesis 26:6-26:12",
+"Aliya 3": "Genesis 26:13-26:22",
+"Aliya 4": "Genesis 26:23-26:29",
+"Aliya 5": "Genesis 26:30-27:27",
+"Aliya 6": "Genesis 27:28-28:4",
+"Aliya 7": "Genesis 28:5-28:9"
+},
+"Vayetze": {
+"Whole Parsha": "Genesis 28:10-32:3",
+"Aliya 1": "Genesis 28:10-28:22",
+"Aliya 2": "Genesis 29:1-29:17",
+"Aliya 3": "Genesis 29:18-30:13",
+"Aliya 4": "Genesis 30:14-30:27",
+"Aliya 5": "Genesis 30:28-31:16",
+"Aliya 6": "Genesis 31:17-31:42",
+"Aliya 7": "Genesis 31:43-32:3"
+},
+"Vayishlach": {
+"Whole Parsha": "Genesis 32:4-36:43",
+"Aliya 1": "Genesis 32:4-32:13",
+"Aliya 2": "Genesis 32:14-32:30",
+"Aliya 3": "Genesis 32:31-33:5",
+"Aliya 4": "Genesis 33:6-33:20",
+"Aliya 5": "Genesis 34:1-35:11",
+"Aliya 6": "Genesis 35:12-36:19",
+"Aliya 7": "Genesis 36:20-36:43"
+},
+"Vayeshev": {
+"Whole Parsha": "Genesis 37:1-40:23",
+"Aliya 1": "Genesis 37:1-37:11",
+"Aliya 2": "Genesis 37:12-37:22",
+"Aliya 3": "Genesis 37:23-37:36",
+"Aliya 4": "Genesis 38:1-38:30",
+"Aliya 5": "Genesis 39:1-39:6",
+"Aliya 6": "Genesis 39:7-39:23",
+"Aliya 7": "Genesis 40:1-40:23"
+},
+"Miketz": {
+"Whole Parsha": "Genesis 41:1-44:17",
+"Aliya 1": "Genesis 41:1-41:14",
+"Aliya 2": "Genesis 41:15-41:38",
+"Aliya 3": "Genesis 41:39-41:52",
+"Aliya 4": "Genesis 41:53-42:18",
+"Aliya 5": "Genesis 42:19-43:15",
+"Aliya 6": "Genesis 43:16-43:29",
+"Aliya 7": "Genesis 43:30-44:17"
+},
+"Vayigash": {
+"Whole Parsha": "Genesis 44:18-47:27",
+"Aliya 1": "Genesis 44:18-44:30",
+"Aliya 2": "Genesis 44:31-45:7",
+"Aliya 3": "Genesis 45:8-45:18",
+"Aliya 4": "Genesis 45:19-45:27",
+"Aliya 5": "Genesis 45:28-46:27",
+"Aliya 6": "Genesis 46:28-47:10",
+"Aliya 7": "Genesis 47:11-47:27"
+},
+"Vayechi": {
+"Whole Parsha": "Genesis 47:28-50:26",
+"Aliya 1": "Genesis 47:28-48:9",
+"Aliya 2": "Genesis 48:10-48:16",
+"Aliya 3": "Genesis 48:17-48:22",
+"Aliya 4": "Genesis 49:1-49:18",
+"Aliya 5": "Genesis 49:19-49:26",
+"Aliya 6": "Genesis 49:27-50:20",
+"Aliya 7": "Genesis 50:21-50:26"
+},
+"Shemot": {
+"Whole Parsha": "Exodus 1:1-6:1",
+"Aliya 1": "Exodus 1:1-1:17",
+"Aliya 2": "Exodus 1:18-2:10",
+"Aliya 3": "Exodus 2:11-2:25",
+"Aliya 4": "Exodus 3:1-3:15",
+"Aliya 5": "Exodus 3:16-4:17",
+"Aliya 6": "Exodus 4:18-4:31",
+"Aliya 7": "Exodus 5:1-6:1"
+},
+"Va'era": {
+"Whole Parsha": "Exodus 6:2-9:35",
+"Aliya 1": "Exodus 6:2-6:13",
+"Aliya 2": "Exodus 6:14-6:28",
+"Aliya 3": "Exodus 6:29-7:7",
+"Aliya 4": "Exodus 7:8-8:6",
+"Aliya 5": "Exodus 8:7-8:18",
+"Aliya 6": "Exodus 8:19-9:16",
+"Aliya 7": "Exodus 9:17-9:35"
+},
+"Bo": {
+"Whole Parsha": "Exodus 10:1-13:16",
+"Aliya 1": "Exodus 10:1-10:11",
+"Aliya 2": "Exodus 10:12-10:23",
+"Aliya 3": "Exodus 10:24-11:3",
+"Aliya 4": "Exodus 11:4-12:20",
+"Aliya 5": "Exodus 12:21-12:28",
+"Aliya 6": "Exodus 12:29-12:51",
+"Aliya 7": "Exodus 13:1-13:16"
+},
+"Beshalach": {
+"Whole Parsha": "Exodus 13:17-17:16",
+"Aliya 1": "Exodus 13:17-14:8",
+"Aliya 2": "Exodus 14:9-14:14",
+"Aliya 3": "Exodus 14:15-14:25",
+"Aliya 4": "Exodus 14:26-15:26",
+"Aliya 5": "Exodus 15:27-16:10",
+"Aliya 6": "Exodus 16:11-16:36",
+"Aliya 7": "Exodus 17:1-17:16"
+},
+"Yitro": {
+"Whole Parsha": "Exodus 18:1-20:23",
+"Aliya 1": "Exodus 18:1-18:12",
+"Aliya 2": "Exodus 18:13-18:23",
+"Aliya 3": "Exodus 18:24-18:27",
+"Aliya 4": "Exodus 19:1-19:6",
+"Aliya 5": "Exodus 19:7-19:19",
+"Aliya 6": "Exodus 19:20-20:14",
+"Aliya 7": "Exodus 20:15-20:23"
+},
+"Mishpatim": {
+"Whole Parsha": "Exodus 21:1-24:18",
+"Aliya 1": "Exodus 21:1-21:19",
+"Aliya 2": "Exodus 21:20-22:3",
+"Aliya 3": "Exodus 22:4-22:26",
+"Aliya 4": "Exodus 22:27-23:5",
+"Aliya 5": "Exodus 23:6-23:19",
+"Aliya 6": "Exodus 23:20-23:25",
+"Aliya 7": "Exodus 23:26-24:18"
+},
+"Terumah": {
+"Whole Parsha": "Exodus 25:1-27:19",
+"Aliya 1": "Exodus 25:1-25:16",
+"Aliya 2": "Exodus 25:17-25:30",
+"Aliya 3": "Exodus 25:31-26:14",
+"Aliya 4": "Exodus 26:15-26:30",
+"Aliya 5": "Exodus 26:31-26:37",
+"Aliya 6": "Exodus 27:1-27:8",
+"Aliya 7": "Exodus 27:9-27:19"
+},
+"Tetzaveh": {
+"Whole Parsha": "Exodus 27:20-30:10",
+"Aliya 1": "Exodus 27:20-28:12",
+"Aliya 2": "Exodus 28:13-28:30",
+"Aliya 3": "Exodus 28:31-28:43",
+"Aliya 4": "Exodus 29:1-29:18",
+"Aliya 5": "Exodus 29:19-29:37",
+"Aliya 6": "Exodus 29:38-29:46",
+"Aliya 7": "Exodus 30:1-30:10"
+},
+"Ki Tisa": {
+"Whole Parsha": "Exodus 30:11-34:35",
+"Aliya 1": "Exodus 30:11-31:17",
+"Aliya 2": "Exodus 31:18-33:11",
+"Aliya 3": "Exodus 33:12-33:16",
+"Aliya 4": "Exodus 33:17-33:23",
+"Aliya 5": "Exodus 34:1-34:9",
+"Aliya 6": "Exodus 34:10-34:26",
+"Aliya 7": "Exodus 34:27-34:35"
+},
+"Vayakhel": {
+"Whole Parsha": "Exodus 35:1-38:20",
+"Aliya 1": "Exodus 35:1-35:20",
+"Aliya 2": "Exodus 35:21-35:29",
+"Aliya 3": "Exodus 35:30-36:7",
+"Aliya 4": "Exodus 36:8-36:19",
+"Aliya 5": "Exodus 36:20-37:16",
+"Aliya 6": "Exodus 37:17-37:29",
+"Aliya 7": "Exodus 38:1-38:20"
+},
+"Pekudei": {
+"Whole Parsha": "Exodus 38:21-40:38",
+"Aliya 1": "Exodus 38:21-39:1",
+"Aliya 2": "Exodus 39:2-39:21",
+"Aliya 3": "Exodus 39:22-39:32",
+"Aliya 4": "Exodus 39:33-39:43",
+"Aliya 5": "Exodus 40:1-40:16",
+"Aliya 6": "Exodus 40:17-40:27",
+"Aliya 7": "Exodus 40:28-40:38"
+},
+"Vayikra": {
+"Whole Parsha": "Leviticus 1:1-5:26",
+"Aliya 1": "Leviticus 1:1-1:13",
+"Aliya 2": "Leviticus 1:14-2:6",
+"Aliya 3": "Leviticus 2:7-2:16",
+"Aliya 4": "Leviticus 3:1-3:17",
+"Aliya 5": "Leviticus 4:1-4:26",
+"Aliya 6": "Leviticus 4:27-5:10",
+"Aliya 7": "Leviticus 5:11-5:26"
+},
+"Tzav": {
+"Whole Parsha": "Leviticus 6:1-8:36",
+"Aliya 1": "Leviticus 6:1-6:11",
+"Aliya 2": "Leviticus 6:12-7:10",
+"Aliya 3": "Leviticus 7:11-7:38",
+"Aliya 4": "Leviticus 8:1-8:13",
+"Aliya 5": "Leviticus 8:14-8:21",
+"Aliya 6": "Leviticus 8:22-8:29",
+"Aliya 7": "Leviticus 8:30-8:36"
+},
+"Shmini": {
+"Whole Parsha": "Leviticus 9:1-11:47",
+"Aliya 1": "Leviticus 9:1-9:16",
+"Aliya 2": "Leviticus 9:17-9:23",
+"Aliya 3": "Leviticus 9:24-10:11",
+"Aliya 4": "Leviticus 10:12-10:15",
+"Aliya 5": "Leviticus 10:16-10:20",
+"Aliya 6": "Leviticus 11:1-11:32",
+"Aliya 7": "Leviticus 11:33-11:47"
+},
+"Tazria": {
+"Whole Parsha": "Leviticus 12:1-13:59",
+"Aliya 1": "Leviticus 12:1-13:5",
+"Aliya 2": "Leviticus 13:6-13:17",
+"Aliya 3": "Leviticus 13:18-13:23",
+"Aliya 4": "Leviticus 13:24-13:28",
+"Aliya 5": "Leviticus 13:29-13:39",
+"Aliya 6": "Leviticus 13:40-13:54",
+"Aliya 7": "Leviticus 13:55-13:59"
+},
+"Metzora": {
+"Whole Parsha": "Leviticus 14:1-15:33",
+"Aliya 1": "Leviticus 14:1-14:12",
+"Aliya 2": "Leviticus 14:13-14:20",
+"Aliya 3": "Leviticus 14:21-14:32",
+"Aliya 4": "Leviticus 14:33-14:53",
+"Aliya 5": "Leviticus 14:54-15:15",
+"Aliya 6": "Leviticus 15:16-15:28",
+"Aliya 7": "Leviticus 15:29-15:33"
+},
+"Acharei Mot": {
+"Whole Parsha": "Leviticus 16:1-18:30",
+"Aliya 1": "Leviticus 16:1-16:17",
+"Aliya 2": "Leviticus 16:18-16:24",
+"Aliya 3": "Leviticus 16:25-16:34",
+"Aliya 4": "Leviticus 17:1-17:7",
+"Aliya 5": "Leviticus 17:8-18:5",
+"Aliya 6": "Leviticus 18:6-18:21",
+"Aliya 7": "Leviticus 18:22-18:30"
+},
+"Kedoshim": {
+"Whole Parsha": "Leviticus 19:1-20:27",
+"Aliya 1": "Leviticus 19:1-19:14",
+"Aliya 2": "Leviticus 19:15-19:22",
+"Aliya 3": "Leviticus 19:23-19:32",
+"Aliya 4": "Leviticus 19:33-19:37",
+"Aliya 5": "Leviticus 20:1-20:7",
+"Aliya 6": "Leviticus 20:8-20:22",
+"Aliya 7": "Leviticus 20:23-20:27"
+},
+"Emor": {
+"Whole Parsha": "Leviticus 21:1-24:23",
+"Aliya 1": "Leviticus 21:1-21:15",
+"Aliya 2": "Leviticus 21:16-22:16",
+"Aliya 3": "Leviticus 22:17-22:33",
+"Aliya 4": "Leviticus 23:1-23:22",
+"Aliya 5": "Leviticus 23:23-23:32",
+"Aliya 6": "Leviticus 23:33-23:44",
+"Aliya 7": "Leviticus 24:1-24:23"
+},
+"Behar": {
+"Whole Parsha": "Leviticus 25:1-26:2",
+"Aliya 1": "Leviticus 25:1-25:13",
+"Aliya 2": "Leviticus 25:14-25:18",
+"Aliya 3": "Leviticus 25:19-25:24",
+"Aliya 4": "Leviticus 25:25-25:28",
+"Aliya 5": "Leviticus 25:29-25:38",
+"Aliya 6": "Leviticus 25:39-25:46",
+"Aliya 7": "Leviticus 25:47-26:2"
+},
+"Bechukotai": {
+"Whole Parsha": "Leviticus 26:3-27:34",
+"Aliya 1": "Leviticus 26:3-26:5",
+"Aliya 2": "Leviticus 26:6-26:9",
+"Aliya 3": "Leviticus 26:10-26:46",
+"Aliya 4": "Leviticus 27:1-27:15",
+"Aliya 5": "Leviticus 27:16-27:21",
+"Aliya 6": "Leviticus 27:22-27:28",
+"Aliya 7": "Leviticus 27:29-27:34"
+},
+"Bamidbar": {
+"Whole Parsha": "Numbers 1:1-4:20",
+"Aliya 1": "Numbers 1:1-1:19",
+"Aliya 2": "Numbers 1:20-1:54",
+"Aliya 3": "Numbers 2:1-2:34",
+"Aliya 4": "Numbers 3:1-3:13",
+"Aliya 5": "Numbers 3:14-3:39",
+"Aliya 6": "Numbers 3:40-3:51",
+"Aliya 7": "Numbers 4:1-4:20"
+},
+"Nasso": {
+"Whole Parsha": "Numbers 4:21-7:89",
+"Aliya 1": "Numbers 4:21-4:37",
+"Aliya 2": "Numbers 4:38-4:49",
+"Aliya 3": "Numbers 5:1-5:10",
+"Aliya 4": "Numbers 5:11-6:27",
+"Aliya 5": "Numbers 7:1-7:41",
+"Aliya 6": "Numbers 7:42-7:71",
+"Aliya 7": "Numbers 7:72-7:89"
+},
+"Beha'alotecha": {
+"Whole Parsha": "Numbers 8:1-12:16",
+"Aliya 1": "Numbers 8:1-8:14",
+"Aliya 2": "Numbers 8:15-8:26",
+"Aliya 3": "Numbers 9:1-9:14",
+"Aliya 4": "Numbers 9:15-10:10",
+"Aliya 5": "Numbers 10:11-10:34",
+"Aliya 6": "Numbers 10:35-11:29",
+"Aliya 7": "Numbers 11:30-12:16"
+},
+"Sh'lach": {
+"Whole Parsha": "Numbers 13:1-15:41",
+"Aliya 1": "Numbers 13:1-13:20",
+"Aliya 2": "Numbers 13:21-14:7",
+"Aliya 3": "Numbers 14:8-14:25",
+"Aliya 4": "Numbers 14:26-15:7",
+"Aliya 5": "Numbers 15:8-15:16",
+"Aliya 6": "Numbers 15:17-15:26",
+"Aliya 7": "Numbers 15:27-15:41"
+},
+"Korach": {
+"Whole Parsha": "Numbers 16:1-18:32",
+"Aliya 1": "Numbers 16:1-16:13",
+"Aliya 2": "Numbers 16:14-16:19",
+"Aliya 3": "Numbers 16:20-17:8",
+"Aliya 4": "Numbers 17:9-17:15",
+"Aliya 5": "Numbers 17:16-17:24",
+"Aliya 6": "Numbers 17:25-18:20",
+"Aliya 7": "Numbers 18:21-18:32"
+},
+"Chukat": {
+"Whole Parsha": "Numbers 19:1-22:1",
+"Aliya 1": "Numbers 19:1-19:17",
+"Aliya 2": "Numbers 19:18-20:6",
+"Aliya 3": "Numbers 20:7-20:13",
+"Aliya 4": "Numbers 20:14-20:21",
+"Aliya 5": "Numbers 20:22-21:9",
+"Aliya 6": "Numbers 21:10-21:20",
+"Aliya 7": "Numbers 21:21-22:1"
+},
+"Balak": {
+"Whole Parsha": "Numbers 22:2-25:9",
+"Aliya 1": "Numbers 22:2-22:12",
+"Aliya 2": "Numbers 22:13-22:20",
+"Aliya 3": "Numbers 22:21-22:38",
+"Aliya 4": "Numbers 22:39-23:12",
+"Aliya 5": "Numbers 23:13-23:26",
+"Aliya 6": "Numbers 23:27-24:13",
+"Aliya 7": "Numbers 24:14-25:9"
+},
+"Pinchas": {
+"Whole Parsha": "Numbers 25:10-30:1",
+"Aliya 1": "Numbers 25:10-26:4",
+"Aliya 2": "Numbers 26:5-26:51",
+"Aliya 3": "Numbers 26:52-27:5",
+"Aliya 4": "Numbers 27:6-27:23",
+"Aliya 5": "Numbers 28:1-28:15",
+"Aliya 6": "Numbers 28:16-29:11",
+"Aliya 7": "Numbers 29:12-30:1"
+},
+"Matot": {
+"Whole Parsha": "Numbers 30:2-32:42",
+"Aliya 1": "Numbers 30:2-31:12",
+"Aliya 2": "Numbers 31:13-31:54",
+"Aliya 3": "Numbers 32:1-32:19",
+"Aliya 4": "Numbers 32:20-33:49",
+"Aliya 5": "Numbers 33:50-34:15",
+"Aliya 6": "Numbers 34:16-35:8",
+"Aliya 7": "Numbers 35:9-36:13"
+},
+"Masei": {
+"Whole Parsha": "Numbers 33:1-36:13",
+"Aliya 1": "",
+"Aliya 2": "",
+"Aliya 3": "",
+"Aliya 4": "",
+"Aliya 5": "",
+"Aliya 6": "",
+"Aliya 7": ""
+},
+"Devarim": {
+"Whole Parsha": "Deuteronomy 1:1-3:22",
+"Aliya 1": "Deuteronomy 1:1-1:10",
+"Aliya 2": "Deuteronomy 1:11-1:21",
+"Aliya 3": "Deuteronomy 1:22-1:38",
+"Aliya 4": "Deuteronomy 1:39-2:1",
+"Aliya 5": "Deuteronomy 2:2-2:30",
+"Aliya 6": "Deuteronomy 2:31-3:14",
+"Aliya 7": "Deuteronomy 3:15-3:22"
+},
+"Va'etchanan": {
+"Whole Parsha": "Deuteronomy 3:23-7:11",
+"Aliya 1": "Deuteronomy 3:23-4:4",
+"Aliya 2": "Deuteronomy 4:5-4:40",
+"Aliya 3": "Deuteronomy 4:41-4:49",
+"Aliya 4": "Deuteronomy 5:1-5:18",
+"Aliya 5": "Deuteronomy 5:19-6:3",
+"Aliya 6": "Deuteronomy 6:4-6:25",
+"Aliya 7": "Deuteronomy 7:1-7:11"
+},
+"Eikev": {
+"Whole Parsha": "Deuteronomy 7:12-11:25",
+"Aliya 1": "Deuteronomy 7:12-8:10",
+"Aliya 2": "Deuteronomy 8:11-9:3",
+"Aliya 3": "Deuteronomy 9:4-9:29",
+"Aliya 4": "Deuteronomy 10:1-10:11",
+"Aliya 5": "Deuteronomy 10:12-11:9",
+"Aliya 6": "Deuteronomy 11:10-11:21",
+"Aliya 7": "Deuteronomy 11:22-11:25"
+},
+"Re'eh": {
+"Whole Parsha": "Deuteronomy 11:26-16:17",
+"Aliya 1": "Deuteronomy 11:26-12:10",
+"Aliya 2": "Deuteronomy 12:11-12:28",
+"Aliya 3": "Deuteronomy 12:29-13:19",
+"Aliya 4": "Deuteronomy 14:1-14:21",
+"Aliya 5": "Deuteronomy 14:22-14:29",
+"Aliya 6": "Deuteronomy 15:1-15:18",
+"Aliya 7": "Deuteronomy 15:19-16:17"
+},
+"Shoftim": {
+"Whole Parsha": "Deuteronomy 16:18-21:9",
+"Aliya 1": "Deuteronomy 16:18-17:13",
+"Aliya 2": "Deuteronomy 17:14-17:20",
+"Aliya 3": "Deuteronomy 18:1-18:5",
+"Aliya 4": "Deuteronomy 18:6-18:13",
+"Aliya 5": "Deuteronomy 18:14-19:13",
+"Aliya 6": "Deuteronomy 19:14-20:9",
+"Aliya 7": "Deuteronomy 20:10-21:9"
+},
+"Ki Teitzei": {
+"Whole Parsha": "Deuteronomy 21:10-25:19",
+"Aliya 1": "Deuteronomy 21:10-21:21",
+"Aliya 2": "Deuteronomy 21:22-22:7",
+"Aliya 3": "Deuteronomy 22:8-23:7",
+"Aliya 4": "Deuteronomy 23:8-23:24",
+"Aliya 5": "Deuteronomy 23:25-24:4",
+"Aliya 6": "Deuteronomy 24:5-24:13",
+"Aliya 7": "Deuteronomy 24:14-25:19"
+},
+"Ki Tavo": {
+"Whole Parsha": "Deuteronomy 26:1-29:8",
+"Aliya 1": "Deuteronomy 26:1-26:11",
+"Aliya 2": "Deuteronomy 26:12-26:15",
+"Aliya 3": "Deuteronomy 26:16-26:19",
+"Aliya 4": "Deuteronomy 27:1-27:10",
+"Aliya 5": "Deuteronomy 27:11-28:6",
+"Aliya 6": "Deuteronomy 28:7-28:69",
+"Aliya 7": "Deuteronomy 29:1-29:8"
+},
+"Nitzavim": {
+"Whole Parsha": "Deuteronomy 29:9-30:20",
+"Aliya 1": "Deuteronomy 29:9-29:28",
+"Aliya 2": "Deuteronomy 30:1-30:6",
+"Aliya 3": "Deuteronomy 30:7-30:14",
+"Aliya 4": "Deuteronomy 30:15-31:6",
+"Aliya 5": "Deuteronomy 31:7-31:13",
+"Aliya 6": "Deuteronomy 31:14-31:19",
+"Aliya 7": "Deuteronomy 31:20-31:30"
+},
+"Vayelech": {
+"Whole Parsha": "Deuteronomy 31:1-31:30",
+"Aliya 1": "",
+"Aliya 2": "",
+"Aliya 3": "",
+"Aliya 4": "",
+"Aliya 5": "",
+"Aliya 6": "",
+"Aliya 7": ""
+},
+"Ha'azinu": {
+"Whole Parsha": "Deuteronomy 32:1-32:52",
+"Aliya 1": "Deuteronomy 32:1-32:6",
+"Aliya 2": "Deuteronomy 32:7-32:12",
+"Aliya 3": "Deuteronomy 32:13-32:18",
+"Aliya 4": "Deuteronomy 32:19-32:28",
+"Aliya 5": "Deuteronomy 32:29-32:39",
+"Aliya 6": "Deuteronomy 32:40-32:43",
+"Aliya 7": "Deuteronomy 32:44-32:52"
+},
+"V'Zot HaBerachah": {
+"Whole Parsha": "Deuteronomy 33:1-34:12",
+"Aliya 1": "Deuteronomy 33:1-33:7",
+"Aliya 2": "Deuteronomy 33:8-33:12",
+"Aliya 3": "Deuteronomy 33:13-33:17",
+"Aliya 4": "Deuteronomy 33:18-33:21",
+"Aliya 5": "Deuteronomy 33:22-33:26",
+"Aliya 6": "Deuteronomy 33:27-34:12",
+"Aliya 7": "Genesis 1:1-2:3"
+},
+};
+
+
+// Handle section selection
+function filterBySection() {
+    const sectionSelect = document.getElementById('section-select').value;
+    const bookSelect = document.getElementById('book-select');
+    const parshaSelect = document.getElementById('parsha-select');
+    const aliyaSelect = document.getElementById('aliya-select');
+
+    // Clear previous selections
+    bookSelect.innerHTML = '<option value="">Select a Book</option>';
+    parshaSelect.innerHTML = '<option value="">Select a Parsha</option>';
+    aliyaSelect.innerHTML = '<option value="">Select an Aliya</option>';
+
+    // Hide Parsha and Aliya filters initially
+    parshaSelect.style.display = 'none';
+    aliyaSelect.style.display = 'none';
+    document.getElementById('parsha-label').style.display = 'none';
+    document.getElementById('aliya-label').style.display = 'none';
+
+    console.log('Selected section:', sectionSelect);
+
+    // Populate the book dropdown based on the selected section
+    if (tanachBooks[sectionSelect]) {
+        tanachBooks[sectionSelect].forEach(book => {
+            const option = document.createElement('option');
+            option.value = book.value;  // Use the value property for internal logic
+            option.textContent = book.display;  // Use the display property for visual purposes
+            bookSelect.appendChild(option);
+
+            console.log('Populating book:', book.display);  // Log each book being added
+        });
+    } else {
+        console.warn('No books found for section:', sectionSelect);
+    }
+}
+
+// Mapping between books and Parsha names
+const bookToParsha = {
+    "Genesis": ["Bereshit", "Noach", "Lech-Lecha", "Vayera", "Chayei Sarah", "Toldot", "Vayetze", "Vayishlach", "Vayeshev", "Miketz", "Vayigash", "Vayechi"],
+    "Exodus": ["Shemot", "Va'era", "Bo", "Beshalach", "Yitro", "Mishpatim", "Terumah", "Tetzaveh", "Ki Tisa", "Vayakhel", "Pekudei"],
+    "Leviticus": ["Vayikra", "Tzav", "Shmini", "Tazria", "Metzora", "Acharei Mot", "Kedoshim", "Emor", "Behar", "Bechukotai"],
+    "Numbers": ["Bamidbar", "Nasso", "Beha'alotecha", "Sh'lach", "Korach", "Chukat", "Balak", "Pinchas", "Matot", "Masei"],
+    "Deuteronomy": ["Devarim", "Va'etchanan", "Eikev", "Re'eh", "Shoftim", "Ki Teitzei", "Ki Tavo", "Nitzavim", "Vayelech", "Ha'azinu", "V'Zot HaBerachah"]
+};
+
+// Handle book selection
+// Handle book selection
+function filterByBook() {
+  const selectedBook = document.getElementById('book-select').value.trim(); 
+  const parshaSelect = document.getElementById('parsha-select');
+  const aliyaSelect = document.getElementById('aliya-select');
+  const versesContainer = document.querySelector('.verses');
+
+  console.log('Selected book:', selectedBook);
+
+  // Reset dropdowns
+  parshaSelect.innerHTML = '<option value="">Select a Parsha</option>';
+  aliyaSelect.innerHTML = '<option value="">Select an Aliya</option>';
+
+  // Check if the selected book is from the Torah section and populate Parsha dropdown if applicable
+  if (bookToParsha[selectedBook]) { 
+    bookToParsha[selectedBook].forEach(parsha => {
+      const option = document.createElement('option');
+      option.value = parsha;
+      option.textContent = parsha;
+      parshaSelect.appendChild(option);
+    });
+
+    // Show Parsha and Aliya dropdowns for Torah books
+    parshaSelect.style.display = 'block';
+    document.getElementById('parsha-label').style.display = 'block';
+  } else {
+    console.log('Book is not part of Torah:', selectedBook);
+
+    // Hide Parsha and Aliya dropdowns for Neviim and Ketuvim
+    parshaSelect.style.display = 'none';
+    aliyaSelect.style.display = 'none';
+    document.getElementById('parsha-label').style.display = 'none';
+    document.getElementById('aliya-label').style.display = 'none';
+
+    // For Neviim and Ketuvim, display verses directly based on the selected book
+    loadVerses(() => {
+      displayVerses((currentBook) => {
+        const cleanedBook = currentBook.trim(); 
+        const match = cleanedBook === selectedBook; 
+        console.log(`Checking if "${cleanedBook}" matches "${selectedBook}":`, match);
+        return match;
+      });
+    });
+  }
+}
+
+// Handle Parsha selection
+function filterByParsha() {
+    const book = document.getElementById('book-select').value;
+    const selectedParsha = document.getElementById('parsha-select').value;
+    const aliyaSelect = document.getElementById('aliya-select');
+
+    // Reset Aliya dropdown
+    aliyaSelect.innerHTML = '<option value="">Select an Aliya</option>';
+
+    if (parshas[selectedParsha]) {
+        let aliyot = parshas[selectedParsha];
+        for (let aliya in aliyot) {
+            const option = document.createElement('option');
+            option.value = aliya;
+            option.textContent = aliya;
+            aliyaSelect.appendChild(option);
+        }
+
+        // Show Aliya dropdown
+        aliyaSelect.style.display = 'block';
+        document.getElementById('aliya-label').style.display = 'block';
+    }
+}
+
+// Handle Aliya selection
+function filterByAliya() {
+    const selectedParsha = document.getElementById('parsha-select').value;
+    const selectedAliya = document.getElementById('aliya-select').value;
+    const versesContainer = document.querySelector('.verses');
+
+    if (parshas[selectedParsha] && parshas[selectedParsha][selectedAliya]) {
+        const aliyahRange = parshas[selectedParsha][selectedAliya];
+
+        // Split the aliyah range into start and end (e.g., "Genesis 4:19-4:22")
+        const [startRange, endRange] = aliyahRange.split('-');
+        const [startBook, startChapterVerse] = startRange.split(' ');
+        const [startChapter, startVerse] = startChapterVerse.split(':');
+        const [endChapter, endVerse] = endRange.split(':');
+
+        // Filter verses within the selected aliyah range
+        const filteredVerses = versesData.filter(row => {
+            const [book, chapter, verse] = row;
+
+            if (book !== startBook) return false; 
+
+            const chapterNum = parseInt(chapter, 10);
+            const verseNum = parseInt(verse, 10);
+
+            // Check if the verse is within the range
+            const withinRange = (
+                (chapterNum > parseInt(startChapter) || (chapterNum === parseInt(startChapter) && verseNum >= parseInt(startVerse))) &&
+                (chapterNum < parseInt(endChapter) || (chapterNum === parseInt(endChapter) && verseNum <= parseInt(endVerse)))
+            );
+
+            return withinRange;
+        });
+
+        // Display filtered verses
+        if (filteredVerses.length > 0) {
+            versesContainer.innerHTML = ''; 
+            filteredVerses.forEach(row => {
+                const [book, chapter, verse, text] = row;
+                const verseDiv = document.createElement('div');
+                verseDiv.className = 'verse';
+                verseDiv.innerHTML = `<strong>${book} ${chapter}:${verse}</strong> - ${text}`;
+                versesContainer.appendChild(verseDiv);
+            });
+        } else {
+            versesContainer.innerHTML = `<p>No verses found for the selected Aliya.</p>`;
+        }
+    } else {
+        versesContainer.innerHTML = `<p>No verses found for the selected Aliya.</p>`;
+    }
+}
+
+
+
+
     </script>
 </body>
 </html>
