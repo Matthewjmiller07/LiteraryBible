@@ -183,7 +183,13 @@
         </button>
     </div>
 
+    <!-- Button to toggle chart visibility -->
+<button id="toggleChartBtn">Show Chart</button>
+
+<!-- Container for the chart, hidden by default -->
+<div id="chartContainer" style="display: none; margin-top: 20px;">
     <canvas id="deviceChart" width="400" height="200"></canvas>
+</div>
 
     <div class="verses">
         <p>Please select a book or device to view verses.</p>
@@ -369,13 +375,14 @@ function displayVerses(filterFn, bookName, additionalFilter = null) {
         'ambiguity': 0
     };
 
-    // Process all rows to accumulate devices for the same verse
-    versesData.forEach(row => {
+    // Start loop from 1 to skip the header (versesData[0])
+    for (let i = 1; i < versesData.length; i++) {
+        const row = versesData[i];
         const [book, chapter, verse, text, device, words, sources, urls] = row;
-        if (!book || !chapter || !verse || !text) return;
+        if (!book || !chapter || !verse || !text) continue;
 
         // Apply the additional filter if provided (e.g., Aliya, Parsha)
-        if (additionalFilter && !additionalFilter(book, chapter, verse)) return;
+        if (additionalFilter && !additionalFilter(book, chapter, verse)) continue;
 
         const verseKey = `${book} ${chapter}:${verse}`;
         if (!verseMap[verseKey]) {
@@ -397,7 +404,7 @@ function displayVerses(filterFn, bookName, additionalFilter = null) {
         // Add sources and URLs
         verseMap[verseKey].sources.push(sourceArray); // Store as array of arrays
         verseMap[verseKey].urls.push(urlArray);       // Store as array of arrays
-    });
+    }
 
     // Display the verses based on the filter
     Object.keys(verseMap).forEach(verseKey => {
@@ -1281,6 +1288,26 @@ function displayChartForBook(bookName) {
 document.addEventListener('DOMContentLoaded', function() {
     // Example call to display chart for "Genesis"
     displayChartForBook('Genesis');
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleChartBtn = document.getElementById('toggleChartBtn');
+    const chartContainer = document.getElementById('chartContainer');
+
+    // Add event listener to the toggle button
+    toggleChartBtn.addEventListener('click', function() {
+        // Toggle chart visibility
+        if (chartContainer.style.display === 'none') {
+            chartContainer.style.display = 'block'; // Show the chart
+            toggleChartBtn.textContent = 'Hide Chart'; // Update button text
+        } else {
+            chartContainer.style.display = 'none'; // Hide the chart
+            toggleChartBtn.textContent = 'Show Chart'; // Update button text
+        }
+    });
+    
+    // Initially update the chart when the page loads (if needed)
+    updateGroupedChart(); // Call this to create the chart, it will remain hidden until toggled
 });
 
 
