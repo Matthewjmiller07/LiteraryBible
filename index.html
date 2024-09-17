@@ -6,223 +6,245 @@
     <title>Color-Coded Bible</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Noto Sans Hebrew', 'Arial', sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        .filter-buttons, .book-filter {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .filter-buttons button, .book-filter button {
-            border: none;
-            padding: 10px 20px;
-            margin: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            color: white;
-        }
-
-        /* Device Color Classes */
-.device-waw-explicativum {
-    background-color: rgb(55, 255, 0);
-    color: black;
+       :root {
+  --background-color: #f5f7fa;
+  --text-color: #34495e;
+  --hover-color: #e0e6ed;
 }
 
-.device-hendiadys {
-    background-color: #add8e6;
-    color: black;
+body {
+  font-family: 'Noto Sans Hebrew', 'Roboto', sans-serif;
+  background-color: var(--background-color);
+  margin: 0;
+  padding: 20px;
+  line-height: 1.8;
+  color: var(--text-color);
 }
 
-.device-synecdoche {
-    background-color: rgb(255, 165, 0); /* Orange */
-    color: black;
+h1 {
+  text-align: center;
+  color: #333;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.device-merism {
-    background-color: rgb(255, 105, 180); /* Hot pink */
-    color: black;
+.filter-buttons, .book-filter {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
 }
 
-.device-wordplay {
-    background-color: rgb(213, 140, 4); /* Yellow */
-    color: black;
+.filter-buttons button, .book-filter button {
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  color: black;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.device-euphemism {
-    background-color: rgb(176, 224, 230); /* Powder blue */
-    color: black;
+.filter-buttons button:hover, .book-filter button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.device-simile {
-    background-color: rgb(123, 104, 238); /* Medium slate blue */
-    color: white;
-}
+/* Device Color Classes - preserved from original */
+.device-waw-explicativum, .device-waw-explicativum.filter-buttons button { background-color: rgb(55, 255, 0); }
+.device-hendiadys, .device-hendiadys.filter-buttons button { background-color: #add8e6; }
+.device-synecdoche, .device-synecdoche.filter-buttons button { background-color: rgb(255, 165, 0); }
+.device-merism, .device-merism.filter-buttons button { background-color: rgb(255, 105, 180); }
+.device-wordplay, .device-wordplay.filter-buttons button { background-color: rgb(213, 140, 4); }
+.device-euphemism, .device-euphemism.filter-buttons button { background-color: rgb(176, 224, 230); }
+.device-simile, .device-simile.filter-buttons button { background-color: rgb(123, 104, 238); color: white; }
+.device-ambiguity, .device-ambiguity.filter-buttons button { background-color: rgb(255, 0, 0); color: white; }
 
-.device-ambiguity {
-    background-color: rgb(255, 0, 0); /* Red-orange */
-    color: white;
-}
-
+.device-waw-explicativum .highlight,
+.device-hendiadys .highlight,
 .device-synecdoche .highlight,
 .device-merism .highlight,
 .device-wordplay .highlight,
 .device-euphemism .highlight,
 .device-simile .highlight,
-.device-ambiguity .highlight,
-.device-waw-explicativum .highlight,
-.device-hendiadys .highlight {
-    font-weight: bold;
+.device-ambiguity .highlight {
+  font-weight: bold;
 }
 
-        .verses {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .verse {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #777;
-        }
-
-        /* Style for superscript numbers */
-.superscript {
-    font-size: 0.7em;
-    vertical-align: super;
-}
-
-/* Style for source mapping */
-.source-block {
-    margin-top: 10px;
-    font-size: 14px;
-}
-
-.source-block a {
-    color: #6A0DAD;  /* Change this to match the theme */
-    text-decoration: none;
-}
-/* Floating toggle button for form */
-#toggleFormBtn {
-    position: absolute;
-    top: 10px; /* Position at the top */
-    right: 10px; /* Align to the right */
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 5px 15px; /* Make it a rectangular button */
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px; /* Slight rounding to keep it a rectangle */
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Remove rounded corner for the Close button */
-#toggleFormBtn:hover {
-    background-color: #d32f2f; /* Darker red on hover */
-}
-
-/* Floating form container, hidden by default */
-#formContainer {
-    position: fixed;
-    left: 10px;
-    top: 150px;
-    width: 400px; /* Increased width to match the content */
-    max-width: 100%;
-    display: none; /* Hidden initially */
-    z-index: 1000;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    padding-top: 40px; /* Add top padding to create space for the close button */
-    position: relative;
-}
-
-iframe {
-    width: 100%;
-    height: 300px;
-    border: none;
-}
-
-.verse:hover {
-    background-color: #f0f0f0;
-    cursor: pointer;
-}
-
-/* Mobile-specific styles */
-@media (max-width: 768px) {
-    
-
-    #formContainer {
-        left: 5px;
-        top: 120px;
-        width: 90%;
-    }
-
-    #toggleFormBtn {
-        top: 5px; /* Adjust position on mobile */
-        right: 5px;
-        font-size: 14px;
-        padding: 4px 12px;
-    }
-
-    iframe {
-        height: 250px;
-    }
-}
-
-/* New style for the plus button inside each verse */
-.verse-plus-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 30px;
-    height: 30px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 20px;
-    text-align: center;
-    line-height: 30px;
-    cursor: pointer;
-    z-index: 10;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease;
-}
-
-.verse-plus-btn:hover {
-    background-color: #45a049;
+.verses {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .verse {
-    position: relative;
-    padding-right: 50px; /* Ensure the button doesn't overlap the text */
+  margin-bottom: 30px;
+  padding: 20px 50px 20px 20px; /* Adjusted padding */
+  border-bottom: 1px solid #ecf0f1;
+  transition: all 0.3s ease;
+  position: relative;
+  text-align: center; /* Center the text */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center child elements horizontally */
+  justify-content: center; /* Center child elements vertically */
+}
+
+.verse:hover {
+  background-color: var(--hover-color);
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.verse-plus-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 20px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.verse-plus-btn:hover {
+  background-color: #45a049;
+  transform: rotate(90deg);
+}
+
+
+footer {
+  text-align: center;
+  margin-top: 30px;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.superscript {
+  font-size: 0.7em;
+  vertical-align: super;
+}
+
+.source-block {
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+.source-block a {
+  color: #6A0DAD;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.source-block a:hover {
+  color: #4B0082;
+}
+
+#toggleFormBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+#toggleFormBtn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+#formContainer {
+  position: fixed;
+  left: 10px;
+  top: 150px;
+  width: 400px;
+  max-width: 90%;
+  display: none;
+  z-index: 1000;
+  background-color: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  padding-top: 50px;
+}
+
+iframe {
+  width: 100%;
+  height: 300px;
+  border: none;
+  border-radius: 10px;
+}
+
+.verse-plus-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 20px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  .filter-buttons button, .book-filter button {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  #formContainer {
+    left: 5px;
+    top: 120px;
+    width: calc(100% - 10px);
+  }
+
+  #toggleFormBtn {
+    top: 5px;
+    right: 5px;
+    font-size: 14px;
+    padding: 4px 12px;
+  }
+
+  iframe {
+    height: 250px;
+  }
 }
     </style>
 </head>
