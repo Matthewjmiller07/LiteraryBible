@@ -311,6 +311,10 @@ iframe {
     </footer>
 
     <script>
+        // Disable console logging
+    console.log = function() {};   // Disable logs
+    console.warn = function() {};  // Disable warnings
+    console.error = function() {}; // Disable errors (use cautiously)
         const API_KEY = 'AIzaSyAJH1Uoae-nnNRq2DmMUsdOUwhhsW2E8yU';
         const SHEET_ID = '1AQigxLa6S8HAoVeUYohh4AjQ_9YU_HgXBjuXZdl6msg';
         const RANGE = 'tanakh_verses_hebrew!A:H';
