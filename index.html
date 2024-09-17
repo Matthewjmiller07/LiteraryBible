@@ -128,7 +128,7 @@
     </style>
 </head>
 <body>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <h1>Color-Coded Bible</h1>
 
     <div class="filter-section">
@@ -182,6 +182,8 @@
             Ambiguity (<span id="count-ambiguity">0</span>)
         </button>
     </div>
+
+    <canvas id="deviceChart" width="400" height="200"></canvas>
 
     <div class="verses">
         <p>Please select a book or device to view verses.</p>
@@ -350,20 +352,30 @@ function getDisplayName(bookValue) {
     return bookValue; // Default to original value if not found
 }
 
-function displayVerses(filterFn) {
+function displayVerses(filterFn, bookName, additionalFilter = null) {
     const versesContainer = document.querySelector('.verses');
     versesContainer.innerHTML = ''; // Clear previous verses
 
     let hasVerses = false;
     const verseMap = {};
+    const deviceCounts = {
+        'waw-explicativum': 0,
+        'hendiadys': 0,
+        'synecdoche': 0,
+        'merism': 0,
+        'wordplay': 0,
+        'euphemism': 0,
+        'simile': 0,
+        'ambiguity': 0
+    };
 
     // Process all rows to accumulate devices for the same verse
     versesData.forEach(row => {
         const [book, chapter, verse, text, device, words, sources, urls] = row;
         if (!book || !chapter || !verse || !text) return;
 
-        // Transform book name for display (spaces)
-        const displayBook = getDisplayName(book);
+        // Apply the additional filter if provided (e.g., Aliya, Parsha)
+        if (additionalFilter && !additionalFilter(book, chapter, verse)) return;
 
         const verseKey = `${book} ${chapter}:${verse}`;
         if (!verseMap[verseKey]) {
@@ -397,6 +409,13 @@ function displayVerses(filterFn) {
 
         if (filterFn(book, verseData.devices)) {
             hasVerses = true;
+
+            // Count the devices for the filtered verses
+            verseData.devices.forEach(d => {
+                if (d.device && deviceCounts.hasOwnProperty(d.device.toLowerCase())) {
+                    deviceCounts[d.device.toLowerCase()]++;
+                }
+            });
 
             // Create the verse container
             const verseDiv = document.createElement("div");
@@ -439,6 +458,9 @@ function displayVerses(filterFn) {
     if (!hasVerses) {
         versesContainer.innerHTML = '<p>No verses found for the selected filter.</p>';
     }
+
+    // After displaying the verses, update the chart with the filtered device counts
+    updateChart(deviceCounts, bookName);
 }
 
         // Filter by Literary Device
@@ -1162,7 +1184,104 @@ function displayVersesForRange(range) {
         versesContainer.innerHTML = `<p>No verses found for the selected range.</p>`;
     }
 }
+let chart;  // Store the chart instance globally to allow proper destruction
 
+
+
+// Function to initialize and update the chart with device counts
+function updateChart(deviceCounts, bookName) {
+    console.log(deviceCounts); // Log to check the data structure
+
+    const labels = Object.keys(deviceCounts);
+    const data = Object.values(deviceCounts);
+
+    // Check if the canvas exists
+    const ctx = document.getElementById('deviceChart');
+    if (!ctx) {
+        console.error("Canvas element not found!");
+        return;
+    }
+
+    const canvasContext = ctx.getContext('2d');
+
+    if (chart) {
+        chart.destroy();  // Destroy previous chart instance if it exists
+    }
+
+    // Initialize and create the chart
+    chart = new Chart(canvasContext, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `Literary Devices in Bible`,
+                data: data,
+                backgroundColor: [
+                    'rgb(55, 255, 0)',
+                    '#add8e6',
+                    'rgb(255, 165, 0)',
+                    'rgb(255, 105, 180)',
+                    'rgb(255, 255, 0)',
+                    'rgb(176, 224, 230)',
+                    'rgb(123, 104, 238)',
+                    'rgb(255, 0, 0)'
+                ],
+                borderColor: 'rgba(0, 0, 0, 0.1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Occurrences'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Function to count devices in a given book or section
+function countDevicesInBook(bookName) {
+    const deviceCounts = {
+        'waw-explicativum': 0,
+        'hendiadys': 0,
+        'synecdoche': 0,
+        'merism': 0,
+        'wordplay': 0,
+        'euphemism': 0,
+        'simile': 0,
+        'ambiguity': 0
+    };
+
+    // Loop through versesData and count occurrences of each device for the selected book
+    versesData.forEach(row => {
+        const [book, chapter, verse, text, device] = row;
+        if (book === bookName && device && deviceCounts.hasOwnProperty(device.toLowerCase())) {
+            deviceCounts[device.toLowerCase()]++;
+        }
+    });
+
+    return deviceCounts;
+}
+
+// Function to display the chart for a selected book or section
+function displayChartForBook(bookName) {
+    const deviceCounts = countDevicesInBook(bookName);
+    updateChart(deviceCounts, bookName);
+}
+
+// Example usage (this part depends on when you want to render the chart)
+// Call this function after your data is loaded and ready
+// Replace 'Genesis' with the book name or section you are working with
+document.addEventListener('DOMContentLoaded', function() {
+    // Example call to display chart for "Genesis"
+    displayChartForBook('Genesis');
+});
 
 
     </script>
