@@ -250,6 +250,11 @@ iframe {
         <select id="book-select" onchange="filterByBook()">
             <option value="">Select a Book</option>
         </select>
+
+        <label for="chapter-select" id="chapter-label" style="display:none;">Select Chapter: </label>
+        <select id="chapter-select" onchange="filterByChapter()" style="display:none;">
+        <option value="">Select a Chapter</option>
+        </select>
     
         <label for="parsha-select" id="parsha-label" style="display:none;">Select Parsha: </label>
         <select id="parsha-select" onchange="filterByParsha()" style="display:none;">
@@ -381,6 +386,7 @@ iframe {
 
         // Load the Google Sheets data
         // Load the Google Sheets data and count the devices
+// Load the Google Sheets data
 function loadVerses(callback) {
     if (versesData.length === 0) {
         const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}`;
@@ -389,7 +395,7 @@ function loadVerses(callback) {
             .then(response => response.json())
             .then(data => {
                 versesData = data.values || [];
-                console.log(data.values.slice(0, 5)); // Log the first 5 rows of raw data
+                console.log(versesData.slice(0, 5)); // Log the first 5 rows of raw data
                 updateDeviceCounts();  // Call update device counts after loading the data
                 callback();
             })
@@ -465,137 +471,133 @@ function getDisplayName(bookValue) {
 }
 
 function displayVerses(filterFn, bookName, additionalFilter = null) {
-    const versesContainer = document.querySelector('.verses');
-    versesContainer.innerHTML = ''; // Clear previous verses
+  const versesContainer = document.querySelector('.verses');
+  versesContainer.innerHTML = ''; // Clear previous verses
 
-    let hasVerses = false;
-    const verseMap = {};
-    const deviceCounts = {
-        'waw-explicativum': 0,
-        'hendiadys': 0,
-        'synecdoche': 0,
-        'merism': 0,
-        'wordplay': 0,
-        'euphemism': 0,
-        'simile': 0,
-        'ambiguity': 0
-    };
+  let hasVerses = false;
+  const verseMap = {};
+  const deviceCounts = {
+    'waw-explicativum': 0,
+    'hendiadys': 0,
+    'synecdoche': 0,
+    'merism': 0,
+    'wordplay': 0,
+    'euphemism': 0,
+    'simile': 0,
+    'ambiguity': 0
+  };
 
-    // Start loop from 1 to skip the header (versesData[0])
-    for (let i = 1; i < versesData.length; i++) {
-        const row = versesData[i];
-        const [book, chapter, verse, text, device, words, sources, urls] = row;
-        if (!book || !chapter || !verse || !text) continue;
+  // Start loop from 1 to skip the header (versesData[0])
+  for (let i = 1; i < versesData.length; i++) {
+    const row = versesData[i];
 
-        // Apply the additional filter if provided (e.g., Aliya, Parsha)
-        if (additionalFilter && !additionalFilter(book, chapter, verse)) continue;
-
-        const verseKey = `${book} ${chapter}:${verse}`;
-        if (!verseMap[verseKey]) {
-            verseMap[verseKey] = {
-                text: text,
-                devices: [],
-                sources: [],
-                urls: []
-            };
-        }
-
-        // Add the device and words
-        verseMap[verseKey].devices.push({ device, words });
-
-        // Split sources and URLs by semicolons
-        const sourceArray = sources ? sources.split(';').map(src => src.trim()) : [];
-        const urlArray = urls ? urls.split(';').map(url => url.trim()) : [];
-
-        // Add sources and URLs
-        verseMap[verseKey].sources.push(sourceArray); // Store as array of arrays
-        verseMap[verseKey].urls.push(urlArray);       // Store as array of arrays
+    // Handle potential missing data in rows
+    if (row.length < 4) {
+      console.warn(`Skipping row ${i} because it's missing necessary fields:`, row);
+      continue;
     }
 
-    // Display the verses based on the filter
-    Object.keys(verseMap).forEach(verseKey => {
-        const verseData = verseMap[verseKey];
-        const [book, chapterVerse] = verseKey.split(' ', 2);
+    // Use destructuring with default values for optional fields
+    const [book, chapter, verse, text, device = '', words = '', sources = '', urls = ''] = row;
 
-        // Get the display-friendly version of the book name (with spaces)
-        const displayBookName = getDisplayName(book);
-
-        if (filterFn(book, verseData.devices)) {
-            hasVerses = true;
-
-            // Count the devices for the filtered verses
-            verseData.devices.forEach(d => {
-                if (d.device && deviceCounts.hasOwnProperty(d.device.toLowerCase())) {
-                    deviceCounts[d.device.toLowerCase()]++;
-                }
-            });
-
-            // Create the verse container
-            const verseDiv = document.createElement("div");
-            verseDiv.className = "verse";
-            verseDiv.setAttribute("data-verse", verseKey); // Add the data-verse attribute
-
-            // Reverse the superscript numbering for RTL Hebrew text
-            let highlightedText = verseData.text;
-            let sourceCounter = verseData.devices.length; // Start from the highest number for RTL text
-            let sourceMapping = [];  // Store each source mapping
-
-            verseData.devices.forEach((d, index) => {
-                if (d.words) {
-                    const regex = new RegExp(d.words, 'g');
-                    // Add superscript for each device without the device name
-                    highlightedText = highlightedText.replace(regex, `<span class="highlight ${deviceColors[d.device.toLowerCase()]}">${d.words}<sup class="superscript">${sourceCounter}</sup></span>`);
-
-                    // Add the sources for this device, along with the device name
-                    let sourcesForDevice = verseData.sources[index].map((source, srcIndex) => 
-                        `<a href="${verseData.urls[index][srcIndex]}" class="source" target="_blank">${source}</a>`
-                    ).join(', ');
-
-                    // Add to source mapping, showing both device name and sources
-                    sourceMapping.push(`<span class="${deviceColors[d.device.toLowerCase()]}">${sourceCounter}. (${d.device}) ${sourcesForDevice}</span>`);
-                    sourceCounter--; // Decrement for next device
-                }
-            });
-
-            // Reverse the source order to match the correct RTL superscript order
-            sourceMapping.reverse();
-
-            // Construct the source mapping below the verse
-            let sourcesDisplay = `<div class="source-block">${sourceMapping.join('<br>')}</div>`;
-
-            // Add the verse text and sources to the verse container, using display-friendly book name
-            verseDiv.innerHTML = `<span>${displayBookName} ${chapterVerse}</span> <span>${highlightedText}</span><br/>${sourcesDisplay}`;
-
-           
-            // Create the "+" button
-const plusBtn = document.createElement("button");
-plusBtn.className = "verse-plus-btn";
-plusBtn.innerHTML = "+";
-plusBtn.addEventListener('click', function(event) {
-    event.stopPropagation(); // Prevent event from bubbling up
-    toggleFormVisibility(verseKey);  // Pass the verseKey to prefill the form
-});
-
-            // Append the "+" button to the verseDiv
-            verseDiv.appendChild(plusBtn);
-
-            // Append the verseDiv to the container
-            versesContainer.appendChild(verseDiv);
-
-            // Add event listener to prefill form with verse text
-            verseDiv.addEventListener('click', function() {
-                const verseText = verseKey; // Get the verse reference
-                prefillGoogleForm(verseText); // Call the prefill function
-            });
-        }
-    });
-
-    if (!hasVerses) {
-        versesContainer.innerHTML = '<p>No verses found for the selected filter.</p>';
+    if (!book || !chapter || !verse || !text) {
+      continue;
     }
 
-    // After displaying the verses, update the chart with the filtered device counts
-    updateChart(deviceCounts, bookName);
+    // Apply the additional filter if provided
+    if (additionalFilter && !additionalFilter(book, chapter, verse)) continue;
+
+    const verseKey = `${book} ${chapter}:${verse}`;
+    if (!verseMap[verseKey]) {
+      verseMap[verseKey] = {
+        text: text,
+        devices: [],
+        sources: [],
+        urls: []
+      };
+    }
+
+    verseMap[verseKey].devices.push({ device, words });
+
+    // Split sources and URLs by semicolons, handle empty cases
+    const sourceArray = sources ? sources.split(';').map(src => src.trim()) : [];
+    const urlArray = urls ? urls.split(';').map(url => url.trim()) : [];
+
+    verseMap[verseKey].sources.push(sourceArray);
+    verseMap[verseKey].urls.push(urlArray);
+  }
+
+  Object.keys(verseMap).forEach(verseKey => {
+    const verseData = verseMap[verseKey];
+    const [book, chapterVerse] = verseKey.split(' ', 2);
+    const displayBookName = getDisplayName(book);
+
+    if (filterFn(book, verseData.devices)) {
+      hasVerses = true;
+
+      verseData.devices.forEach(d => {
+        if (d.device && deviceCounts.hasOwnProperty(d.device.toLowerCase())) {
+          deviceCounts[d.device.toLowerCase()]++;
+        }
+      });
+
+      const verseDiv = document.createElement("div");
+      verseDiv.className = "verse";
+      verseDiv.setAttribute("data-verse", verseKey);
+
+      let highlightedText = verseData.text;
+      let sourceCounter = verseData.devices.length;
+      let sourceMapping = [];
+
+      verseData.devices.forEach((d, index) => {
+        if (d.words) {
+          const regex = new RegExp(d.words, 'g');
+          highlightedText = highlightedText.replace(
+            regex,
+            `<span class="highlight ${deviceColors[d.device.toLowerCase()]}">${d.words}<sup class="superscript">${sourceCounter}</sup></span>`
+          );
+
+          let sourcesForDevice = verseData.sources[index]
+            .map((source, srcIndex) =>
+              `<a href="${verseData.urls[index][srcIndex]}" class="source" target="_blank">${source}</a>`
+            )
+            .join(', ');
+
+          sourceMapping.push(
+            `<span class="${deviceColors[d.device.toLowerCase()]}">${sourceCounter}. (${d.device}) ${sourcesForDevice}</span>`
+          );
+          sourceCounter--;
+        }
+      });
+
+      sourceMapping.reverse();
+      let sourcesDisplay = `<div class="source-block">${sourceMapping.join('<br>')}</div>`;
+
+      verseDiv.innerHTML = `<span>${displayBookName} ${chapterVerse}</span> <span>${highlightedText}</span><br/>${sourcesDisplay}`;
+
+      const plusBtn = document.createElement("button");
+      plusBtn.className = "verse-plus-btn";
+      plusBtn.innerHTML = "+";
+      plusBtn.addEventListener('click', function (event) {
+        event.stopPropagation();
+        toggleFormVisibility(verseKey);
+      });
+
+      verseDiv.appendChild(plusBtn);
+      versesContainer.appendChild(verseDiv);
+
+      verseDiv.addEventListener('click', function () {
+        const verseText = verseKey;
+        prefillGoogleForm(verseText);
+      });
+    }
+  });
+
+  if (!hasVerses) {
+    versesContainer.innerHTML = '<p>No verses found for the selected filter.</p>';
+  }
+
+  updateChart(deviceCounts, bookName);
 }
 
 
@@ -1231,43 +1233,104 @@ function filterBySection() {
 }
 
 // Handle book selection
+// Handle book selection
+// Handle book selection
 function filterByBook() {
-    const selectedBook = document.getElementById('book-select').value.trim(); 
-    const parshaSelect = document.getElementById('parsha-select');
-    const aliyaSelect = document.getElementById('aliya-select');
+  const sectionSelect = document.getElementById('section-select').value;
+  const selectedBook = document.getElementById('book-select').value.trim();
+  const parshaSelect = document.getElementById('parsha-select');
+  const aliyaSelect = document.getElementById('aliya-select');
+  const chapterSelect = document.getElementById('chapter-select');
 
-    // Reset Parsha and Aliya dropdowns
-    parshaSelect.innerHTML = '<option value="">Select a Parsha</option>';
-    aliyaSelect.innerHTML = '<option value="">Select an Aliya</option>';
+  // Reset Parsha, Aliya, and Chapter dropdowns
+  parshaSelect.innerHTML = '<option value="">Select a Parsha</option>';
+  aliyaSelect.innerHTML = '<option value="">Select an Aliya</option>';
+  chapterSelect.innerHTML = '<option value="">Select a Chapter</option>';
 
-    if (bookToParsha[selectedBook]) { 
-        bookToParsha[selectedBook].forEach(parsha => {
-            const option = document.createElement('option');
-            option.value = parsha;
-            option.textContent = parsha;
-            parshaSelect.appendChild(option);
-        });
+  // Populate Chapter dropdown for all books using getChaptersForBook
+  const chapters = getChaptersForBook(selectedBook);
+  chapters.forEach(chapter => {
+    const option = document.createElement('option');
+    option.value = `Chapter ${chapter}`;
+    option.textContent = `Chapter ${chapter}`;
+    chapterSelect.appendChild(option);
+  });
 
-        // Show Parsha dropdown for Torah books
-        parshaSelect.style.display = 'block';
-        document.getElementById('parsha-label').style.display = 'block';
+  // Show Chapter dropdown and label
+  chapterSelect.style.display = 'block';
+  document.getElementById('chapter-label').style.display = 'block';
 
-        // Display the whole book by default
-        loadVerses(() => {
-            displayVerses((book) => book === selectedBook);
-        });
-    } else {
-        // Hide Parsha and Aliya dropdowns for Neviim and Ketuvim
-        parshaSelect.style.display = 'none';
-        aliyaSelect.style.display = 'none';
-        document.getElementById('parsha-label').style.display = 'none';
-        document.getElementById('aliya-label').style.display = 'none';
+  if (sectionSelect === 'Torah' && bookToParsha[selectedBook]) {
+    // Populate Parsha dropdown for Torah books
+    bookToParsha[selectedBook].forEach(parsha => {
+      const option = document.createElement('option');
+      option.value = parsha;
+      option.textContent = parsha;
+      parshaSelect.appendChild(option);
+    });
 
-        // For Neviim and Ketuvim, display the whole book
-        loadVerses(() => {
-            displayVerses((book) => book === selectedBook);
-        });
-    }
+    // Show Parsha dropdown and label
+    parshaSelect.style.display = 'block';
+    document.getElementById('parsha-label').style.display = 'block';
+
+    // Initially hide Aliya dropdown and label
+    aliyaSelect.style.display = 'none';
+    document.getElementById('aliya-label').style.display = 'none';
+  } else {
+    // Hide Parsha and Aliya dropdowns and labels for Neviim and Ketuvim
+    parshaSelect.style.display = 'none';
+    aliyaSelect.style.display = 'none';
+    document.getElementById('parsha-label').style.display = 'none';
+    document.getElementById('aliya-label').style.display = 'none';
+  }
+
+  // Display the whole book by default
+  loadVerses(() => {
+    displayVerses((book) => book === selectedBook);
+  });
+}
+
+function getChaptersForBook(bookName) {
+    const chapters = [];
+
+    // Loop through the verses data to find unique chapters for the selected book
+    versesData.forEach(row => {
+        const [book, chapter] = row;
+        if (book === bookName && !chapters.includes(chapter)) {
+            chapters.push(chapter); // Add unique chapters
+        }
+    });
+
+    return chapters.sort((a, b) => a - b); // Sort chapters numerically
+}
+
+function filterByChapter() {
+  const selectedBook = document.getElementById('book-select').value.trim();
+  const selectedChapterText = document.getElementById('chapter-select').value.trim();
+
+  if (!selectedBook) {
+    console.error("No book selected!");
+    return;
+  }
+
+  if (!selectedChapterText) {
+    console.error("No chapter selected!");
+    return;
+  }
+
+  // Extract numeric chapter from the selected text
+  const selectedChapter = parseInt(selectedChapterText.replace('Chapter ', '').trim(), 10);
+
+  console.log(`Filtering by book: ${selectedBook}, chapter: ${selectedChapter}`);
+
+  loadVerses(() => {
+    // Pass the selectedChapter to displayVerses as an additional filter
+    displayVerses(
+      (book, devices) => book === selectedBook, // Filter by book
+      null, 
+      (book, chapter) => parseInt(chapter) === selectedChapter // Filter by chapter
+    );
+  });
 }
 
 // Handle Parsha selection
