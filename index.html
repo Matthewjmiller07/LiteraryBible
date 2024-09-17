@@ -125,11 +125,117 @@
     color: #6A0DAD;  /* Change this to match the theme */
     text-decoration: none;
 }
+/* Floating toggle button for form */
+#toggleFormBtn {
+    position: absolute;
+    top: 10px; /* Position at the top */
+    right: 10px; /* Align to the right */
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 5px 15px; /* Make it a rectangular button */
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px; /* Slight rounding to keep it a rectangle */
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Remove rounded corner for the Close button */
+#toggleFormBtn:hover {
+    background-color: #d32f2f; /* Darker red on hover */
+}
+
+/* Floating form container, hidden by default */
+#formContainer {
+    position: fixed;
+    left: 10px;
+    top: 150px;
+    width: 400px; /* Increased width to match the content */
+    max-width: 100%;
+    display: none; /* Hidden initially */
+    z-index: 1000;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding-top: 40px; /* Add top padding to create space for the close button */
+    position: relative;
+}
+
+iframe {
+    width: 100%;
+    height: 300px;
+    border: none;
+}
+
+.verse:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    
+
+    #formContainer {
+        left: 5px;
+        top: 120px;
+        width: 90%;
+    }
+
+    #toggleFormBtn {
+        top: 5px; /* Adjust position on mobile */
+        right: 5px;
+        font-size: 14px;
+        padding: 4px 12px;
+    }
+
+    iframe {
+        height: 250px;
+    }
+}
+
+/* New style for the plus button inside each verse */
+.verse-plus-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    text-align: center;
+    line-height: 30px;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+.verse-plus-btn:hover {
+    background-color: #45a049;
+}
+
+.verse {
+    position: relative;
+    padding-right: 50px; /* Ensure the button doesn't overlap the text */
+}
     </style>
 </head>
 <body>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <h1>Color-Coded Bible</h1>
+
+<!-- Hidden form container (Floating on left side) -->
+<div id="formContainer" style="display: none; position: fixed; left: 10px; top: 10px; width: 400px;">
+    <button id="toggleFormBtn" style="float: right; background-color: #f44336; color: white; border: none; padding: 5px 10px; cursor: pointer;">Close</button>
+    <iframe id="suggestionForm" src="https://docs.google.com/forms/d/e/1FAIpQLSf0pGZFjskpi5fASZ3aGKk0Ormp2qH1aggCRiu2pq5X9SuCbQ/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0" width="100%" height="400px">Loading…</iframe>
+</div>
+
 
     <div class="filter-section">
         <label for="section-select">Select Section: </label>
@@ -427,6 +533,7 @@ function displayVerses(filterFn, bookName, additionalFilter = null) {
             // Create the verse container
             const verseDiv = document.createElement("div");
             verseDiv.className = "verse";
+            verseDiv.setAttribute("data-verse", verseKey); // Add the data-verse attribute
 
             // Reverse the superscript numbering for RTL Hebrew text
             let highlightedText = verseData.text;
@@ -458,7 +565,28 @@ function displayVerses(filterFn, bookName, additionalFilter = null) {
 
             // Add the verse text and sources to the verse container, using display-friendly book name
             verseDiv.innerHTML = `<span>${displayBookName} ${chapterVerse}</span> <span>${highlightedText}</span><br/>${sourcesDisplay}`;
+
+           
+            // Create the "+" button
+const plusBtn = document.createElement("button");
+plusBtn.className = "verse-plus-btn";
+plusBtn.innerHTML = "+";
+plusBtn.addEventListener('click', function(event) {
+    event.stopPropagation(); // Prevent event from bubbling up
+    toggleFormVisibility(verseKey);  // Pass the verseKey to prefill the form
+});
+
+            // Append the "+" button to the verseDiv
+            verseDiv.appendChild(plusBtn);
+
+            // Append the verseDiv to the container
             versesContainer.appendChild(verseDiv);
+
+            // Add event listener to prefill form with verse text
+            verseDiv.addEventListener('click', function() {
+                const verseText = verseKey; // Get the verse reference
+                prefillGoogleForm(verseText); // Call the prefill function
+            });
         }
     });
 
@@ -468,6 +596,32 @@ function displayVerses(filterFn, bookName, additionalFilter = null) {
 
     // After displaying the verses, update the chart with the filtered device counts
     updateChart(deviceCounts, bookName);
+}
+
+
+
+// Function to prefill the Google Form
+function prefillGoogleForm(verseText) {
+    const formURL = `https://docs.google.com/forms/d/e/1FAIpQLSf0pGZFjskpi5fASZ3aGKk0Ormp2qH1aggCRiu2pq5X9SuCbQ/viewform?usp=pp_url&entry.1645440068=${encodeURIComponent(verseText)}`;
+    
+    // Update the iframe with the pre-filled form URL
+    document.getElementById('suggestionForm').src = formURL;
+
+    // Optionally make the form visible
+    document.getElementById('formContainer').style.display = 'block';
+}
+
+
+
+// Attach prefill functionality to the verses
+function attachPrefillListeners() {
+    const verses = document.querySelectorAll('.verse');
+    verses.forEach(verse => {
+        verse.addEventListener('click', function() {
+            const verseText = verse.getAttribute('data-verse'); // Get the verse reference
+            prefillGoogleForm(verseText); // Prefill the form with the selected verse
+        });
+    });
 }
 
         // Filter by Literary Device
@@ -1282,20 +1436,19 @@ function displayChartForBook(bookName) {
     updateChart(deviceCounts, bookName);
 }
 
+
 // Example usage (this part depends on when you want to render the chart)
 // Call this function after your data is loaded and ready
 // Replace 'Genesis' with the book name or section you are working with
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Example call to display chart for "Genesis"
     displayChartForBook('Genesis');
-});
 
-document.addEventListener('DOMContentLoaded', function() {
     const toggleChartBtn = document.getElementById('toggleChartBtn');
     const chartContainer = document.getElementById('chartContainer');
 
-    // Add event listener to the toggle button
-    toggleChartBtn.addEventListener('click', function() {
+    // Add event listener to the chart toggle button
+    toggleChartBtn.addEventListener('click', function () {
         // Toggle chart visibility
         if (chartContainer.style.display === 'none') {
             chartContainer.style.display = 'block'; // Show the chart
@@ -1305,10 +1458,74 @@ document.addEventListener('DOMContentLoaded', function() {
             toggleChartBtn.textContent = 'Show Chart'; // Update button text
         }
     });
-    
+
     // Initially update the chart when the page loads (if needed)
     updateGroupedChart(); // Call this to create the chart, it will remain hidden until toggled
+
+    // Handle form visibility toggle and close button
+    const formContainer = document.getElementById('formContainer');
+    const toggleFormBtn = document.querySelector('.verse-plus-btn'); // Assuming there's only one "+" button
+    const closeFormBtn = document.getElementById('closeFormBtn');
+
+    // Event listener for the "+" button to open/close the form and toggle between + and X
+    toggleFormBtn.addEventListener('click', function () {
+        if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+            formContainer.style.display = 'block'; // Show the form
+            toggleFormBtn.innerHTML = 'X'; // Change "+" to "X"
+            toggleFormBtn.style.backgroundColor = '#f44336'; // Change background to red
+        } else {
+            formContainer.style.display = 'none'; // Hide the form
+            toggleFormBtn.innerHTML = '+'; // Change "X" back to "+"
+            toggleFormBtn.style.backgroundColor = ''; // Reset background color
+        }
+    });
+
+    // Event listener for the "Close" button to hide the form and reset "+" button
+    closeFormBtn.addEventListener('click', function () {
+        formContainer.style.display = 'none'; // Hide the form
+        toggleFormBtn.innerHTML = '+'; // Change "X" back to "+"
+        toggleFormBtn.style.backgroundColor = ''; // Reset background color
+    });
 });
+
+// Function to update the suggestion form with the adjacent verse
+function updateFormWithVerse(verseText) {
+    const baseUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf0pGZFjskpi5fASZ3aGKk0Ormp2qH1aggCRiu2pq5X9SuCbQ/viewform?embedded=true';
+    const verseParam = `&entry.123456789=${encodeURIComponent(verseText)}`; // Replace entry.123456789 with your form's field ID
+    document.getElementById('suggestionForm').src = baseUrl + verseParam;
+}
+
+// Add event listeners to each verse for hover or click
+document.querySelectorAll('.verse').forEach(verseElement => {
+    verseElement.addEventListener('mouseover', function() {
+        const verseText = this.textContent || this.innerText; // Get verse text
+        updateFormWithVerse(verseText); // Update form with the verse
+    });
+});
+
+// Toggle form visibility with "+" button
+document.getElementById('toggleFormBtn').addEventListener('click', function() {
+    const formContainer = document.getElementById('formContainer');
+    if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+        formContainer.style.display = 'block'; // Show the form
+    } else {
+        formContainer.style.display = 'none'; // Hide the form
+    }
+});
+
+function toggleFormVisibility(verseKey = null) {
+    const formContainer = document.getElementById('formContainer');
+
+    // Toggle the form visibility
+    if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+        if (verseKey) {
+            prefillGoogleForm(verseKey);  // Prefill the form with the selected verse (only when a verse is provided)
+        }
+        formContainer.style.display = 'block'; // Show the form
+    } else {
+        formContainer.style.display = 'none'; // Hide the form
+    }
+}
 
 
     </script>
