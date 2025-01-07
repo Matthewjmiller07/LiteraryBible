@@ -53,14 +53,15 @@ h1 {
 }
 
 /* Device Color Classes - preserved from original */
-.device-waw-explicativum, .device-waw-explicativum.filter-buttons button { background-color: rgb(55, 255, 0); }
-.device-hendiadys, .device-hendiadys.filter-buttons button { background-color: #add8e6; }
-.device-synecdoche, .device-synecdoche.filter-buttons button { background-color: rgb(255, 165, 0); }
-.device-merism, .device-merism.filter-buttons button { background-color: rgb(255, 105, 180); }
-.device-wordplay, .device-wordplay.filter-buttons button { background-color: rgb(213, 140, 4); }
-.device-euphemism, .device-euphemism.filter-buttons button { background-color: rgb(176, 224, 230); }
-.device-simile, .device-simile.filter-buttons button { background-color: rgb(123, 104, 238); color: white; }
-.device-ambiguity, .device-ambiguity.filter-buttons button { background-color: rgb(255, 0, 0); color: white; }
+.device-waw-explicativum, .device-waw-explicativum.filter-buttons button { background-color: #90EE90; } /* LightGreen - fresh, positive */
+.device-hendiadys, .device-hendiadys.filter-buttons button { background-color: #ADD8E6; } /* LightBlue - calm, peaceful */ 
+.device-synecdoche, .device-synecdoche.filter-buttons button { background-color: #FFA07A; } /* LightSalmon - warm, inviting */
+.device-hapax, .device-hapax.filter-buttons button { background-color: #87CEFA; } /* LightSkyBlue - airy, spacious */ 
+.device-merism, .device-merism.filter-buttons button { background-color: #FFB6C1; } /* LightPink - soft, gentle */
+.device-wordplay, .device-wordplay.filter-buttons button { background-color: #FFFACD; } /* LemonChiffon - bright, cheerful */
+.device-euphemism, .device-euphemism.filter-buttons button { background-color: #E0FFFF; } /* LightCyan - tranquil, serene */
+.device-simile, .device-simile.filter-buttons button { background-color: #DDA0DD; } /* Plum - sophisticated, elegant */ 
+.device-ambiguity, .device-ambiguity.filter-buttons button { background-color: #FA8072; } /* Salmon - noticeable, but not harsh */
 
 .device-waw-explicativum .highlight,
 .device-hendiadys .highlight,
@@ -69,6 +70,7 @@ h1 {
 .device-wordplay .highlight,
 .device-euphemism .highlight,
 .device-simile .highlight,
+.device-hapax .highlight,
 .device-ambiguity .highlight {
   font-weight: bold;
 }
@@ -299,6 +301,9 @@ iframe {
         <button class="device-synecdoche" onclick="filterByDevice('synecdoche')">
             Synecdoche (<span id="count-synecdoche">0</span>)
         </button>
+        <button class="device-hapax" onclick="filterByDevice('hapax')">
+          Hapax (<span id="count-hapax">0</span>)
+      </button>
         <button class="device-merism" onclick="filterByDevice('merism')">
             Merism (<span id="count-merism">0</span>)
         </button>
@@ -352,6 +357,7 @@ iframe {
             'euphemism': 'device-euphemism',
             'simile': 'device-simile',
             'ambiguity': 'device-ambiguity',
+            'hapax': 'device-hapax',
             // Add more devices and their corresponding classes
         };
 
@@ -443,7 +449,8 @@ function updateDeviceCounts() {
         'wordplay',
         'euphemism',
         'simile',
-        'ambiguity'
+        'ambiguity',
+        'hapax'
     ];
 
     // Initialize counts for each device
@@ -455,7 +462,8 @@ function updateDeviceCounts() {
         'wordplay': 0,
         'euphemism': 0,
         'simile': 0,
-        'ambiguity': 0
+        'ambiguity': 0,
+        'hapax': 0
     };
 
     // Loop through the loaded verses data to count occurrences in Column E (index 4)
@@ -510,7 +518,8 @@ function displayVerses(filterFn, bookName, additionalFilter = null) {
     'wordplay': 0,
     'euphemism': 0,
     'simile': 0,
-    'ambiguity': 0
+    'ambiguity': 0,
+    'hapax': 0
   };
 
   // Start loop from 1 to skip the header (versesData[0])
@@ -1505,7 +1514,8 @@ function countDevicesInBook(bookName) {
         'wordplay': 0,
         'euphemism': 0,
         'simile': 0,
-        'ambiguity': 0
+        'ambiguity': 0,
+        'hapax': 0
     };
 
     // Loop through versesData and count occurrences of each device for the selected book
